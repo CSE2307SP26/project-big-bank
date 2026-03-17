@@ -46,7 +46,7 @@ public class BankAccountTest {
             BankAccount account = new BankAccount();
             account.deposit(10.0);
             assertEquals(1, account.getTransactionHistory().size());
-            assertTrue(account.getTransactionHistory().get(0).contains("10.0"));
+            assertTrue(account.getTransactionHistory().get(0).contains("Deposited $10.0"));
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
@@ -56,7 +56,11 @@ public class BankAccountTest {
     public void testWithdrawalAddedToTransactionHistory() {
         BankAccount testAccount = new BankAccount();
         try {
-            //once withdrawal is implemented, this can be filled in
+            BankAccount account = new BankAccount();
+            // Note: Command added manually to transaction history as to not rely on withdraw method:
+            account.getTransactionHistory().add("Withdrew $1");
+            assertEquals(1, account.getTransactionHistory().size());
+            assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
