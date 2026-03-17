@@ -1,11 +1,12 @@
 package main;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 2;
+	private static final int MAX_SELECTION = 3;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -38,6 +39,9 @@ public class MainMenu {
         switch (selection) {
             case 1:
                 performDeposit();
+                break;
+            case 3:
+                viewTransactionHistory();
         }
     }
 
@@ -48,6 +52,21 @@ public class MainMenu {
             depositAmount = keyboardInput.nextInt();
         }
         userAccount.deposit(depositAmount);
+    }
+
+    private void viewTransactionHistory() {
+        List<String> history = userAccount.getTransactionHistory();
+
+        if (history.isEmpty()) {
+            System.out.println("\nNo transactions found.\n");
+            return;
+        }
+
+        System.out.println("\nTransaction History:");
+        for (String transaction : history) {
+            System.out.println(transaction);
+        }
+        System.out.println();
     }
 
     public void run() {
