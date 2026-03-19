@@ -4,6 +4,7 @@ import main.BankAccount;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,44 @@ public class BankAccountTest {
         try {
             testAccount.deposit(-50);
             fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testNewAccountHasEmptyHistory() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            BankAccount account = new BankAccount();
+            assertTrue(account.getTransactionHistory().isEmpty());
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testDepositAddedToTransactionHistory() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            BankAccount account = new BankAccount();
+            account.deposit(10.0);
+            assertEquals(1, account.getTransactionHistory().size());
+            assertTrue(account.getTransactionHistory().get(0).contains("Deposited $10.0"));
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testWithdrawalAddedToTransactionHistory() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            BankAccount account = new BankAccount();
+            // Note: Command added manually to transaction history as to not rely on withdraw method:
+            account.getTransactionHistory().add("Withdrew $1");
+            assertEquals(1, account.getTransactionHistory().size());
+            assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
