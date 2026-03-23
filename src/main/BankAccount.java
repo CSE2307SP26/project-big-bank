@@ -29,4 +29,13 @@ public class BankAccount {
     public List<String> getTransactionHistory() {
         return transactionHistory;
     }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= this.balance) {
+            this.balance -= amount;
+            this.transactionHistory.add("Withdrew $" + amount);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
 }
