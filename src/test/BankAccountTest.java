@@ -65,4 +65,17 @@ public class BankAccountTest {
             //do nothing, test passes
         }
     }
+
+    @Test
+    public void testCheckBalance() {
+        BankAccount account = new BankAccount();
+        assertEquals(0.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testCheckBalanceAfterDeposit() {
+        BankAccount account = new BankAccount();
+        account.deposit(500.0);
+        assertEquals(500.0, account.getBalance(), 0.01);
+    }
 }
