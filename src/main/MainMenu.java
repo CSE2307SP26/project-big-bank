@@ -1,20 +1,25 @@
 package main;
 
 import java.lang.foreign.ValueLayout;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	  private static final int MAX_SELECTION = 9;
+	private static final int MAX_SELECTION = 9;
 
-	  private BankAccount userAccount;
+    private List<BankAccount> accounts;
+
+	private BankAccount userAccount;
     private Scanner keyboardInput;
 
     public MainMenu() {
         this.userAccount = new BankAccount();
         this.keyboardInput = new Scanner(System.in);
+        this.accounts = new ArrayList<>();
+        this.accounts.add(this.userAccount);
     }
 
     public void displayOptions() {
@@ -24,6 +29,7 @@ public class MainMenu {
         System.out.println("2. Exit the app");
         System.out.println("9. Close current account");
         System.out.println("3. View transaction history");
+        System.out.println("4. Create additional account");
 
 
     }
@@ -44,8 +50,13 @@ public class MainMenu {
                 break;
             case 9:
                 performCloseAccount();
+                break;
             case 3:
                 viewTransactionHistory();
+                break;
+            case 4:
+                createAdditionalAccount();
+                break;
         }
     }
 
@@ -82,6 +93,19 @@ public class MainMenu {
             System.out.println(transaction);
         }
         System.out.println();
+    }
+
+    public void createAdditionalAccount() {
+        BankAccount newAccount = new BankAccount();
+        accounts.add(newAccount);
+        userAccount = newAccount;
+        
+        System.out.println("Additional account has been created.");
+        System.out.println("You are now using account #" + accounts.size());
+    }
+
+    public int getNumberOfAccounts() {
+        return accounts.size();
     }
 
     public void run() {

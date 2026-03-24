@@ -1,6 +1,7 @@
 package test;
 
 import main.BankAccount;
+import main.MainMenu;
 
 // import static org.junit.Assert.assertEquals;
 // import static org.junit.Assert.assertTrue;
@@ -90,6 +91,20 @@ public class BankAccountTest {
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
+    }
+
+    @Test
+    public void testStartsWithOneAccount() {
+        MainMenu menu = new MainMenu();
+        assertEquals(1, menu.getNumberOfAccounts());
+    }
+
+    @Test
+    public void testAddAccountAddsOneAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        assertEquals(2, menu.getNumberOfAccounts());
+    
     }
 
 
