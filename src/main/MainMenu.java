@@ -1,14 +1,15 @@
 package main;
 
+import java.lang.foreign.ValueLayout;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 3;
+	  private static final int MAX_SELECTION = 9;
 
-	private BankAccount userAccount;
+	  private BankAccount userAccount;
     private Scanner keyboardInput;
 
     public MainMenu() {
@@ -17,10 +18,11 @@ public class MainMenu {
     }
 
     public void displayOptions() {
-        System.out.println("Welcome to the 237 Bank App!");
+        System.out.println("\nWelcome to the 237 Bank App!");
         
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
+        System.out.println("9. Close current account");
         System.out.println("3. View transaction history");
 
 
@@ -40,6 +42,8 @@ public class MainMenu {
             case 1:
                 performDeposit();
                 break;
+            case 9:
+                performCloseAccount();
             case 3:
                 viewTransactionHistory();
         }
@@ -51,7 +55,18 @@ public class MainMenu {
             System.out.print("How much would you like to deposit: ");
             depositAmount = keyboardInput.nextInt();
         }
-        userAccount.deposit(depositAmount);
+        try { userAccount.deposit(depositAmount); } catch (IllegalStateException e) { System.out.println(e.getMessage());}
+    }
+
+    public void performCloseAccount() {
+        String confirm = "";
+        while (!confirm.equals("Y") && !confirm.equals("N")) {
+            System.out.print("Account closure is permanent, are you sure? Y/N ");
+            confirm = keyboardInput.next();
+        }
+        if (confirm.equals("Y")) {
+            userAccount.Close();
+        }
     }
 
     private void viewTransactionHistory() {
