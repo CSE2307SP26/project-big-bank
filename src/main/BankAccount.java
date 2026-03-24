@@ -17,6 +17,7 @@ public class BankAccount {
 
     public boolean IsOpen() {
         return openState;
+    }
 
     public void deposit(double amount) {
         if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); }
@@ -39,7 +40,24 @@ public class BankAccount {
       
     public List<String> getTransactionHistory() {
         return transactionHistory;
+    }
+
     public void transfer(BankAccount target, double amount) {
-        
+        if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); } 
+        if (!target.IsOpen()) { throw new IllegalStateException("!!! Target account has been closed !!!"); }
+
+        if(amount > 0) {
+            //first make sure we can withdraw the intended value
+            try {
+                this.withdraw(amount);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("!!! Account lacks funds to transfer !!!");
+            }
+
+            target.deposit(amount);
+
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 }

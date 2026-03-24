@@ -51,6 +51,9 @@ public class BankAccountTest {
             fail();
         } catch (IllegalStateException e) {
             //test passes
+        }
+
+    @Test
     public void testNewAccountHasEmptyHistory() {
         BankAccount testAccount = new BankAccount();
         try {
@@ -83,6 +86,12 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
     public void testTransfer() {
         BankAccount testAccount1 = new BankAccount();
         BankAccount testAccount2 = new BankAccount();
@@ -96,9 +105,8 @@ public class BankAccountTest {
     public void testInvalidTransfer() {
         BankAccount testAccount1 = new BankAccount();
         BankAccount testAccount2 = new BankAccount();
-        testAccount1.deposit(50);
-        try {
-            testAccount1.transfer(testAccount2,-25);
+        try { //should fail because testAccount has no balance
+            testAccount1.transfer(testAccount2,25);
             fail();
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
