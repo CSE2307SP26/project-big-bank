@@ -91,6 +91,34 @@ public class BankAccountTest {
     }
 
     @Test
+    public void testCheckBalance() {
+        BankAccount account = new BankAccount();
+        assertEquals(0.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testCheckBalanceAfterDeposit() {
+        BankAccount account = new BankAccount();
+        account.deposit(500.0);
+        assertEquals(500.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testWithdraw() {
+        BankAccount account = new BankAccount();
+        account.deposit(500.0);
+        account.withdraw(100.0);
+        assertEquals(400.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testInvalidWithdraw() {
+        BankAccount account = new BankAccount();
+        try {
+            account.withdraw(-50.0);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // do nothing, test passes
     public void testStartsWithOneAccount() {
         MainMenu menu = new MainMenu();
         assertEquals(1, menu.getNumberOfAccounts());
@@ -126,6 +154,15 @@ public class BankAccountTest {
     }
 
     @Test
+    public void testWithdrawInsufficientFunds() {
+        BankAccount account = new BankAccount();
+        try {
+            account.withdraw(200.0);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // do nothing, test passes
+        }
+    }
     public void testCollectFeeNegative() {
         BankAccount testAccount = new BankAccount();
         try {
