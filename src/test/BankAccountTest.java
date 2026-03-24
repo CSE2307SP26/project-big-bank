@@ -3,9 +3,6 @@ package test;
 import main.BankAccount;
 import main.MainMenu;
 
-// import static org.junit.Assert.assertEquals;
-// import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
@@ -88,7 +85,7 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-        } catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
     }
@@ -107,6 +104,44 @@ public class BankAccountTest {
     
     }
 
+    @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 
+    @Test
+    public void testCollectFee() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(100);
+        testAccount.adminCollectFee(10);
+        assertEquals(90, testAccount.getBalance());
+    }
 
+    @Test
+    public void testCollectFeeTooLarge() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(20);
+        try {
+            testAccount.adminCollectFee(50);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
 
+    @Test
+    public void testCollectFeeNegative() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            testAccount.adminCollectFee(-10);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeUpdatesHistory() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminCollectFee(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
+    }
 }
