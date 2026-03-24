@@ -74,7 +74,6 @@ public class MainMenu {
                 break;
             case 4:
                 createAdditionalAccount();
-                performCloseAccount();
                 break;
             case 5:
                 performCloseAccount();
