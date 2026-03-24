@@ -21,7 +21,6 @@ public class MainMenu {
         this.keyboardInput = new Scanner(System.in);
         this.accounts = new ArrayList<>();
         this.accounts.add(this.userAccount);
-        this.authenticate();
     }
 
     private void authenticate(){
@@ -152,6 +151,7 @@ public class MainMenu {
     }
 
     public void run() {
+        authenticate();
         int selection = -1;
         while(selection != EXIT_SELECTION) {
             displayOptions();
