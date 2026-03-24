@@ -1,10 +1,9 @@
 package test;
 
 import main.BankAccount;
+import main.MainMenu;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,31 @@ public class BankAccountTest {
             fail();
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testIfAccountOpen() {
+        BankAccount testAccount = new BankAccount();
+        assertTrue(testAccount.IsOpen());
+    }
+
+    @Test
+    public void testCloseAccount() { //it might be a good idea to maintain account data, but still close the account
+        BankAccount testAccount = new BankAccount();
+        testAccount.Close();
+        assertTrue(!testAccount.IsOpen());
+    }
+
+    @Test
+    public void testDepositToClosedAccount() { //it should be impossible to deposit to a closed account
+        BankAccount testAccount = new BankAccount();
+        testAccount.Close();
+        try {
+            testAccount.deposit(50);
+            fail();
+        } catch (IllegalStateException e) {
+            //test passes
         }
     }
 
@@ -61,7 +85,7 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-        } catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
     }
@@ -95,6 +119,37 @@ public class BankAccountTest {
             fail();
         } catch (IllegalArgumentException e) {
             // do nothing, test passes
+    public void testStartsWithOneAccount() {
+        MainMenu menu = new MainMenu();
+        assertEquals(1, menu.getNumberOfAccounts());
+    }
+
+    @Test
+    public void testAddAccountAddsOneAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        assertEquals(2, menu.getNumberOfAccounts());
+    
+    }
+
+    @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 
+    @Test
+    public void testCollectFee() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(100);
+        testAccount.adminCollectFee(10);
+        assertEquals(90, testAccount.getBalance());
+    }
+
+    @Test
+    public void testCollectFeeTooLarge() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(20);
+        try {
+            testAccount.adminCollectFee(50);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
         }
     }
 
@@ -107,5 +162,23 @@ public class BankAccountTest {
         } catch (IllegalArgumentException e) {
             // do nothing, test passes
         }
+    }
+    public void testCollectFeeNegative() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            testAccount.adminCollectFee(-10);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeUpdatesHistory() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminCollectFee(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
     }
 }
