@@ -1,10 +1,9 @@
 package test;
 
 import main.BankAccount;
+import main.MainMenu;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +24,31 @@ public class BankAccountTest {
             fail();
         } catch (IllegalArgumentException e) {
             //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testIfAccountOpen() {
+        BankAccount testAccount = new BankAccount();
+        assertTrue(testAccount.IsOpen());
+    }
+
+    @Test
+    public void testCloseAccount() { //it might be a good idea to maintain account data, but still close the account
+        BankAccount testAccount = new BankAccount();
+        testAccount.Close();
+        assertTrue(!testAccount.IsOpen());
+    }
+
+    @Test
+    public void testDepositToClosedAccount() { //it should be impossible to deposit to a closed account
+        BankAccount testAccount = new BankAccount();
+        testAccount.Close();
+        try {
+            testAccount.deposit(50);
+            fail();
+        } catch (IllegalStateException e) {
+            //test passes
         }
     }
 
@@ -61,7 +85,7 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-        } catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
     }
