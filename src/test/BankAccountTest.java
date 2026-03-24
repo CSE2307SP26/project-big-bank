@@ -2,10 +2,10 @@ package test;
 
 import main.BankAccount;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+// import static org.junit.Assert.assertEquals;
+// import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +51,10 @@ public class BankAccountTest {
             fail();
         } catch (IllegalStateException e) {
             //test passes
+        }
+    }
+
+    @Test
     public void testNewAccountHasEmptyHistory() {
         BankAccount testAccount = new BankAccount();
         try {
@@ -87,4 +91,7 @@ public class BankAccountTest {
             //do nothing, test passes
         }
     }
+
+
+
 }

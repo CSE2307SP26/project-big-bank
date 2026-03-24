@@ -17,6 +17,7 @@ public class BankAccount {
 
     public boolean IsOpen() {
         return openState;
+    }
 
     public void deposit(double amount) {
         if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); }
@@ -41,3 +42,4 @@ public class BankAccount {
         return transactionHistory;
     }
 }
+
