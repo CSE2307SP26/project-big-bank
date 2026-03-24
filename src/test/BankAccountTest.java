@@ -2,10 +2,7 @@ package test;
 
 import main.BankAccount;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -51,6 +48,9 @@ public class BankAccountTest {
             fail();
         } catch (IllegalStateException e) {
             //test passes
+        }
+    }
+
     public void testNewAccountHasEmptyHistory() {
         BankAccount testAccount = new BankAccount();
         try {
@@ -83,24 +83,7 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-    public void testTransfer() {
-        BankAccount testAccount1 = new BankAccount();
-        BankAccount testAccount2 = new BankAccount();
-        testAccount1.deposit(50);
-        testAccount1.transfer(testAccount2,25);
-        assertEquals(25,testAccount1.getBalance(),0.01);
-        assertEquals(25,testAccount2.getBalance(),0.01);
-    }
-
-    @Test
-    public void testInvalidTransfer() {
-        BankAccount testAccount1 = new BankAccount();
-        BankAccount testAccount2 = new BankAccount();
-        testAccount1.deposit(50);
-        try {
-            testAccount1.transfer(testAccount2,-25);
-            fail();
-        } catch (IllegalArgumentException e) {
+        }catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
     }

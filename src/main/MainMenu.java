@@ -1,16 +1,15 @@
 package main;
 
-import java.lang.foreign.ValueLayout;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	  private static final int MAX_SELECTION = 9;
+	private static final int MAX_SELECTION = 9;
     private static final String ADMIN_PASS = "admin";
 
-	  private BankAccount userAccount;
+	private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
 
@@ -64,10 +63,11 @@ public class MainMenu {
             case 1:
                 performDeposit();
                 break; 
-            case 4:
-                performCloseAccount();
             case 3:
                 viewTransactionHistory();
+                break;
+            case 4:
+                performCloseAccount();
                 break;
             case 9:
                 if (isAdmin) {
@@ -142,7 +142,5 @@ public class MainMenu {
         MainMenu bankApp = new MainMenu();
         bankApp.run();
     }
-
-    
 
 }
