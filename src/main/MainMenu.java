@@ -7,13 +7,34 @@ public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
 	private static final int MAX_SELECTION = 4;
+    private static final String ADMIN_PASS = "admin";
+
+
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
+    private boolean isAdmin;
 
     public MainMenu() {
         this.userAccount = new BankAccount();
         this.keyboardInput = new Scanner(System.in);
+        this.authenticate();
+    }
+
+    private void authenticate(){
+        System.out.print("Enter admin password (or type anything for regular user): ");
+        String input = keyboardInput.next();
+        if (input.equals(ADMIN_PASS)) {
+            isAdmin = true;
+            System.out.println("Admin access granted");
+        } else {
+            isAdmin = false;
+            System.out.println("Continuing as regular user");
+        }
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
     }
 
     public void displayOptions() {
@@ -22,7 +43,9 @@ public class MainMenu {
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
         System.out.println("3. View transaction history");
-        System.out.println("4. Collect fee");
+        if (isAdmin) {
+            System.out.println("4. Collect fee");
+        }
 
 
     }
@@ -45,7 +68,11 @@ public class MainMenu {
                 viewTransactionHistory();
                 break;
             case 4:
-                viewFeeCollection();
+                if (isAdmin) {
+                    viewFeeCollection();
+                } else {
+                    System.out.println("Unauthorized option.");
+                }
                 break;
         }
     }
