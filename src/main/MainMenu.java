@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 3;
+	private static final int MAX_SELECTION = 4;
 
 	private BankAccount userAccount;
     private Scanner keyboardInput;
@@ -22,6 +22,7 @@ public class MainMenu {
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
         System.out.println("3. View transaction history");
+        System.out.println("4. Collect fee");
 
 
     }
@@ -42,6 +43,10 @@ public class MainMenu {
                 break;
             case 3:
                 viewTransactionHistory();
+                break;
+            case 4:
+                viewFeeCollection();
+                break;
         }
     }
 
@@ -69,6 +74,21 @@ public class MainMenu {
         System.out.println();
     }
 
+    private void viewFeeCollection() {
+        double feeAmount = -1;
+    
+        while (feeAmount <= 0) {
+            System.out.print("Enter fee amount: ");
+            feeAmount = keyboardInput.nextDouble();
+        }
+    
+        try {
+            userAccount.adminCollectFee(feeAmount);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid fee amount or insufficient balance.");
+        }
+    }
+
     public void run() {
         int selection = -1;
         while(selection != EXIT_SELECTION) {
@@ -82,5 +102,7 @@ public class MainMenu {
         MainMenu bankApp = new MainMenu();
         bankApp.run();
     }
+
+    
 
 }
