@@ -104,4 +104,45 @@ public class BankAccountTest {
             //do nothing, test passes
         }
     }
+
+    @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 
+    @Test
+    public void testCollectFee() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(100);
+        testAccount.adminCollectFee(10);
+        assertEquals(90, testAccount.getBalance());
+    }
+
+    @Test
+    public void testCollectFeeTooLarge() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(20);
+        try {
+            testAccount.adminCollectFee(50);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeNegative() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            testAccount.adminCollectFee(-10);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeUpdatesHistory() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminCollectFee(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
+    }
 }

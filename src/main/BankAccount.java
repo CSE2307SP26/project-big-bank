@@ -42,4 +42,15 @@ public class BankAccount {
     public void transfer(BankAccount target, double amount) {
         
     }
+
+    public void adminCollectFee(double amount){
+        if (amount <= 0){
+            throw new IllegalArgumentException();
+        }
+        if (amount > this.balance) {
+            throw new IllegalArgumentException();
+        }
+        this.balance -= amount;
+        this.transactionHistory.add("Fee collected $" + amount);
+    }
 }
