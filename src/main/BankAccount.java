@@ -19,4 +19,8 @@ public class BankAccount {
     public double getBalance() {
         return this.balance;
     }
+
+    public void transfer(BankAccount target, double amount) {
+        
+    }
 }
