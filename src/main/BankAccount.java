@@ -42,6 +42,13 @@ public class BankAccount {
         return transactionHistory;
     }
 
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= this.balance) {
+            this.balance -= amount;
+            this.transactionHistory.add("Withdrew $" + amount);
+        } else {
+            throw new IllegalArgumentException();
+        }
     public void adminCollectFee(double amount){
         if (amount <= 0){
             throw new IllegalArgumentException();
