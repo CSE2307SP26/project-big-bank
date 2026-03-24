@@ -1,17 +1,16 @@
 package main;
 
+import java.lang.foreign.ValueLayout;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 4;
+	  private static final int MAX_SELECTION = 9;
     private static final String ADMIN_PASS = "admin";
 
-
-
-	private BankAccount userAccount;
+	  private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
 
@@ -38,13 +37,14 @@ public class MainMenu {
     }
 
     public void displayOptions() {
-        System.out.println("Welcome to the 237 Bank App!");
+        System.out.println("\nWelcome to the 237 Bank App!");
         
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
         System.out.println("3. View transaction history");
+        System.out.println("4. Close current account");
         if (isAdmin) {
-            System.out.println("4. Collect fee");
+            System.out.println("9. Collect fee");
         }
 
 
@@ -63,11 +63,13 @@ public class MainMenu {
         switch (selection) {
             case 1:
                 performDeposit();
-                break;
+                break; 
+            case 4:
+                performCloseAccount();
             case 3:
                 viewTransactionHistory();
                 break;
-            case 4:
+            case 9:
                 if (isAdmin) {
                     viewFeeCollection();
                 } else {
@@ -83,7 +85,18 @@ public class MainMenu {
             System.out.print("How much would you like to deposit: ");
             depositAmount = keyboardInput.nextInt();
         }
-        userAccount.deposit(depositAmount);
+        try { userAccount.deposit(depositAmount); } catch (IllegalStateException e) { System.out.println(e.getMessage());}
+    }
+
+    public void performCloseAccount() {
+        String confirm = "";
+        while (!confirm.equals("Y") && !confirm.equals("N")) {
+            System.out.print("Account closure is permanent, are you sure? Y/N ");
+            confirm = keyboardInput.next();
+        }
+        if (confirm.equals("Y")) {
+            userAccount.Close();
+        }
     }
 
     private void viewTransactionHistory() {
