@@ -1,6 +1,7 @@
 package test;
 
 import main.BankAccount;
+import main.MainMenu;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,6 +52,7 @@ public class BankAccountTest {
         }
     }
 
+    @Test
     public void testNewAccountHasEmptyHistory() {
         BankAccount testAccount = new BankAccount();
         try {
@@ -86,6 +88,20 @@ public class BankAccountTest {
         }catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
+    }
+
+    @Test
+    public void testStartsWithOneAccount() {
+        MainMenu menu = new MainMenu();
+        assertEquals(1, menu.getNumberOfAccounts());
+    }
+
+    @Test
+    public void testAddAccountAddsOneAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        assertEquals(2, menu.getNumberOfAccounts());
+    
     }
 
     @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 

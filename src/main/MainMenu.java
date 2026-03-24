@@ -1,21 +1,26 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 9;
+	  private static final int MAX_SELECTION = 9;
     private static final String ADMIN_PASS = "admin";
 
-	private BankAccount userAccount;
+    private List<BankAccount> accounts;
+
+	  private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
 
     public MainMenu() {
         this.userAccount = new BankAccount();
         this.keyboardInput = new Scanner(System.in);
+        this.accounts = new ArrayList<>();
+        this.accounts.add(this.userAccount);
         this.authenticate();
     }
 
@@ -41,7 +46,8 @@ public class MainMenu {
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
         System.out.println("3. View transaction history");
-        System.out.println("4. Close current account");
+        System.out.println("4. Create additional account");
+        System.out.println("5. Close current account");
         if (isAdmin) {
             System.out.println("9. Collect fee");
         }
@@ -62,11 +68,15 @@ public class MainMenu {
         switch (selection) {
             case 1:
                 performDeposit();
-                break; 
+                break;
             case 3:
                 viewTransactionHistory();
                 break;
             case 4:
+                createAdditionalAccount();
+                performCloseAccount();
+                break;
+            case 5:
                 performCloseAccount();
                 break;
             case 9:
@@ -114,6 +124,19 @@ public class MainMenu {
         System.out.println();
     }
 
+    public void createAdditionalAccount() {
+        BankAccount newAccount = new BankAccount();
+        accounts.add(newAccount);
+        userAccount = newAccount;
+        
+        System.out.println("Additional account has been created.");
+        System.out.println("You are now using account #" + accounts.size());
+    }
+
+    public int getNumberOfAccounts() {
+        return accounts.size();
+    }
+  
     private void viewFeeCollection() {
         double feeAmount = -1;
     
