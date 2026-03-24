@@ -38,5 +38,6 @@ public class BankAccount {
             throw new IllegalArgumentException();
         }
         this.balance -= amount;
+        this.transactionHistory.add("Fee collected $" + amount);
     }
 }

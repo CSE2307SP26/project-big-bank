@@ -76,7 +76,7 @@ public class BankAccountTest {
     }
 
     @Test
-    public void testCollectAmountTooLarge() {
+    public void testCollectFeeTooLarge() {
         BankAccount testAccount = new BankAccount();
         testAccount.deposit(20);
         try {
@@ -88,7 +88,7 @@ public class BankAccountTest {
     }
 
     @Test
-    public void testCollectAmountNegative() {
+    public void testCollectFeeNegative() {
         BankAccount testAccount = new BankAccount();
         try {
             testAccount.adminCollectFee(-10);
@@ -96,5 +96,14 @@ public class BankAccountTest {
         } catch (IllegalArgumentException e) {
             //does nothing, test passes
         }
+    }
+
+    @Test
+    public void testCollectFeeUpdatesHistory() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminCollectFee(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
     }
 }
