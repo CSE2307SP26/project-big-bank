@@ -1,14 +1,15 @@
 package main;
 
 import java.lang.foreign.ValueLayout;
+import java.util.List;
 import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 9;
+	  private static final int MAX_SELECTION = 9;
 
-	private BankAccount userAccount;
+	  private BankAccount userAccount;
     private Scanner keyboardInput;
 
     public MainMenu() {
@@ -22,6 +23,9 @@ public class MainMenu {
         System.out.println("1. Make a deposit");
         System.out.println("2. Exit the app");
         System.out.println("9. Close current account");
+        System.out.println("3. View transaction history");
+
+
     }
 
     public int getUserSelection(int max) {
@@ -40,6 +44,8 @@ public class MainMenu {
                 break;
             case 9:
                 performCloseAccount();
+            case 3:
+                viewTransactionHistory();
         }
     }
 
@@ -61,6 +67,21 @@ public class MainMenu {
         if (confirm.equals("Y")) {
             userAccount.Close();
         }
+    }
+
+    private void viewTransactionHistory() {
+        List<String> history = userAccount.getTransactionHistory();
+
+        if (history.isEmpty()) {
+            System.out.println("\nNo transactions found.\n");
+            return;
+        }
+
+        System.out.println("\nTransaction History:");
+        for (String transaction : history) {
+            System.out.println(transaction);
+        }
+        System.out.println();
     }
 
     public void run() {
