@@ -39,5 +39,7 @@ public class BankAccount {
       
     public List<String> getTransactionHistory() {
         return transactionHistory;
+    public void transfer(BankAccount target, double amount) {
+        
     }
 }
