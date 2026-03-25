@@ -49,6 +49,8 @@ public class BankAccount {
         } else {
             throw new IllegalArgumentException();
         }
+    }
+
     public void adminCollectFee(double amount){
         if (amount <= 0){
             throw new IllegalArgumentException();
@@ -58,6 +60,14 @@ public class BankAccount {
         }
         this.balance -= amount;
         this.transactionHistory.add("Fee collected $" + amount);
+    }
+
+    public void adminAddInterest(double amount){
+        if (amount <= 0){
+            throw new IllegalArgumentException();
+        }
+        this.balance += amount;
+        this.transactionHistory.add("Interest deposited $" + amount);
     }
 }
 

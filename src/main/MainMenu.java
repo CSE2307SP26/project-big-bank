@@ -7,12 +7,11 @@ import java.util.Scanner;
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 2;
-	  private static final int MAX_SELECTION = 9;
+	private static final int MAX_SELECTION = 10;
     private static final String ADMIN_PASS = "admin";
 
     private List<BankAccount> accounts;
-
-	  private BankAccount userAccount;
+	private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
 
@@ -49,6 +48,7 @@ public class MainMenu {
         System.out.println("5. Close current account");
         if (isAdmin) {
             System.out.println("9. Collect fee");
+            System.out.println("10. Add interest payment");
         }
 
 
@@ -84,6 +84,12 @@ public class MainMenu {
                     System.out.println("Unauthorized option.");
                 }
                 break;
+            case 10:
+                if (isAdmin) {
+                    addInterestPayment();
+                } else {
+                    System.out.println("Unauthorized option.");
+                }
         }
     }
 
@@ -147,6 +153,21 @@ public class MainMenu {
             userAccount.adminCollectFee(feeAmount);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid fee amount or insufficient balance.");
+        }
+    }
+
+    private void addInterestPayment() {
+        double interestAmount = -1;
+    
+        while (interestAmount <= 0) {
+            System.out.print("Enter fee amount: ");
+            interestAmount = keyboardInput.nextDouble();
+        }
+        try {
+            userAccount.adminAddInterest(interestAmount);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid interest payment amount.");
+
         }
     }
 

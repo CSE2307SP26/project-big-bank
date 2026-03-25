@@ -185,4 +185,32 @@ public class BankAccountTest {
         assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
 
     }
+
+    @Test
+    public void testInterestPayment(){
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminAddInterest(20);
+        assertEquals(70, testAccount.getBalance());
+    }
+
+    @Test
+    public void testInterestPaymentNegative() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            testAccount.adminAddInterest(-10);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testInterestPaymentUpdatesHistory(){
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminAddInterest(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Interest deposited $5.0"));
+    }
 }
