@@ -47,6 +47,7 @@ public class MainMenu {
         System.out.println("3. View transaction history");
         System.out.println("4. Create additional account");
         System.out.println("5. Close current account");
+        System.out.println("6. Switch to other account");
         if (isAdmin) {
             System.out.println("9. Collect fee");
         }
@@ -76,6 +77,9 @@ public class MainMenu {
                 break;
             case 5:
                 performCloseAccount();
+                break;
+            case 6:
+                performSwitchAccount();
                 break;
             case 9:
                 if (isAdmin) {
@@ -147,6 +151,44 @@ public class MainMenu {
             userAccount.adminCollectFee(feeAmount);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid fee amount or insufficient balance.");
+        }
+    }
+
+    public BankAccount getCurrentAccount() {
+        return userAccount;
+    }
+    
+    public BankAccount getAccount(int index) {
+        return accounts.get(index);
+    }
+    
+    public void switchAccount(int accountNumber) {
+        if (accountNumber < 1 || accountNumber > accounts.size()) {
+            throw new IllegalArgumentException("Invalid account selection.");
+        }
+    
+        userAccount = accounts.get(accountNumber - 1);
+    }
+
+    public void performSwitchAccount() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
+    
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+    
+        System.out.print("Select account number: ");
+        int selection = keyboardInput.nextInt();
+    
+        try {
+            switchAccount(selection);
+            System.out.println("Switched to account #" + selection);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
