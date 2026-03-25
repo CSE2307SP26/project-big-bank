@@ -185,4 +185,38 @@ public class BankAccountTest {
         assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
 
     }
+
+    @Test
+    public void testSwitchToSecondAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+
+        BankAccount secondAccount = menu.getAccount(1);
+        menu.switchAccount(2);
+
+        assertSame(secondAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testSwitchBackToFirstAccount() {
+        MainMenu menu = new MainMenu();
+        BankAccount firstAccount = menu.getCurrentAccount();
+
+        menu.createAdditionalAccount();
+        menu.switchAccount(2);
+        menu.switchAccount(1);
+
+        assertSame(firstAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testCreateMultipleAccounts() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        assertEquals(4, menu.getNumberOfAccounts());
+    }
 }
+
+

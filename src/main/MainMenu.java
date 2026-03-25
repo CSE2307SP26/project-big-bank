@@ -47,6 +47,7 @@ public class MainMenu {
         System.out.println("3. View transaction history");
         System.out.println("4. Create additional account");
         System.out.println("5. Close current account");
+        System.out.println("6. Switch to other account");
         if (isAdmin) {
             System.out.println("9. Collect fee");
         }

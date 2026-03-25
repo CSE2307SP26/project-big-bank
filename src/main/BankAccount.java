@@ -49,6 +49,7 @@ public class BankAccount {
         } else {
             throw new IllegalArgumentException();
         }
+    }
     public void adminCollectFee(double amount){
         if (amount <= 0){
             throw new IllegalArgumentException();
