@@ -96,6 +96,7 @@ public class BankAccountTest {
         assertEquals(0.0, account.getBalance(), 0.01);
     }
 
+
     @Test
     public void testCheckBalanceAfterDeposit() {
         BankAccount account = new BankAccount();
@@ -119,6 +120,8 @@ public class BankAccountTest {
             fail();
         } catch (IllegalArgumentException e) {
             // do nothing, test passes
+        }
+    }
     public void testStartsWithOneAccount() {
         MainMenu menu = new MainMenu();
         assertEquals(1, menu.getNumberOfAccounts());
@@ -180,5 +183,40 @@ public class BankAccountTest {
         testAccount.adminCollectFee(5);
         assertEquals(2, testAccount.getTransactionHistory().size());
         assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
+
+    }
+
+    @Test
+    public void testSwitchToSecondAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+
+        BankAccount secondAccount = menu.getAccount(1);
+        menu.switchAccount(2);
+
+        assertSame(secondAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testSwitchBackToFirstAccount() {
+        MainMenu menu = new MainMenu();
+        BankAccount firstAccount = menu.getCurrentAccount();
+
+        menu.createAdditionalAccount();
+        menu.switchAccount(2);
+        menu.switchAccount(1);
+
+        assertSame(firstAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testCreateMultipleAccounts() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        assertEquals(4, menu.getNumberOfAccounts());
     }
 }
+
+
