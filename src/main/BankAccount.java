@@ -52,6 +52,8 @@ public class BankAccount {
             throw new IllegalArgumentException();
         }
     }
+
+    
     
     public void transfer(BankAccount target, double amount) {
         if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); } 
@@ -83,6 +85,14 @@ public class BankAccount {
         }
         this.balance -= amount;
         this.transactionHistory.add("Fee collected $" + amount);
+    }
+
+    public void adminAddInterest(double amount){
+        if (amount <= 0){
+            throw new IllegalArgumentException();
+        }
+        this.balance += amount;
+        this.transactionHistory.add("Interest deposited $" + amount);
     }
 }
 

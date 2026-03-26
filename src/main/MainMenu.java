@@ -12,7 +12,6 @@ public class MainMenu {
 
 
     private List<BankAccount> accounts;
-
 	private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
@@ -53,7 +52,8 @@ public class MainMenu {
         System.out.println("8. Switch to other Account");
         System.out.println("0. Exit the App");
         if (isAdmin) {
-            System.out.println("12. Collect fee");
+            System.out.println("9. Collect fee");
+            System.out.println("10. Make interest payment");
         }
 
 
@@ -94,13 +94,19 @@ public class MainMenu {
             case 8: 
                 performSwitchAccount();
                 break;
-            case 12:
+            case 9:
                 if (isAdmin) {
                     viewFeeCollection();
                 } else {
                     System.out.println("Unauthorized option.");
                 }
                 break;
+            case 10:
+                if (isAdmin) {
+                    addInterestPayment();
+                } else {
+                    System.out.println("Unauthorized option.");
+                }
         }
     }
 
@@ -184,6 +190,39 @@ public class MainMenu {
             userAccount.adminCollectFee(feeAmount);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid fee amount or insufficient balance.");
+        }
+    }
+
+    private void addInterestPayment() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
+    
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+    
+        int selection = -1;
+        while (selection < 1 || selection > accounts.size()) {
+            System.out.print("Select account number: ");
+            selection = keyboardInput.nextInt();
+        }
+    
+        BankAccount selectedAccount = accounts.get(selection - 1);
+    
+        double interestAmount = -1;
+        while (interestAmount <= 0) {
+            System.out.print("Enter interest amount: ");
+            interestAmount = keyboardInput.nextDouble();
+        }
+    
+        try {
+            selectedAccount.adminAddInterest(interestAmount);
+            System.out.println("Interest added successfully to Account #" + selection);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid interest payment amount.");
         }
     }
 
