@@ -6,9 +6,10 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    private static final int EXIT_SELECTION = 2;
-	private static final int MAX_SELECTION = 10;
+    private static final int EXIT_SELECTION = 0;
+	private static final int MAX_SELECTION = 12;
     private static final String ADMIN_PASS = "admin";
+
 
     private List<BankAccount> accounts;
 	private BankAccount userAccount;
@@ -41,14 +42,18 @@ public class MainMenu {
     public void displayOptions() {
         System.out.println("\nWelcome to the 237 Bank App!");
         
-        System.out.println("1. Make a deposit");
-        System.out.println("2. Exit the app");
-        System.out.println("3. View transaction history");
-        System.out.println("4. Create additional account");
-        System.out.println("5. Close current account");
+        System.out.println("1. Make a Deposit");
+        System.out.println("2. Withdraw Money");
+        System.out.println("3. Check Balance");
+        System.out.println("4. View Transaction History");
+        System.out.println("5. Transfer Money");
+        System.out.println("6. Create additional Account");
+        System.out.println("7. Close current Account");
+        System.out.println("8. Switch to other Account");
+        System.out.println("0. Exit the App");
         if (isAdmin) {
             System.out.println("9. Collect fee");
-            System.out.println("10. Add interest payment");
+            System.out.println("10. Make interest payment");
         }
 
 
@@ -56,7 +61,7 @@ public class MainMenu {
 
     public int getUserSelection(int max) {
         int selection = -1;
-        while(selection < 1 || selection > max) {
+        while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
             selection = keyboardInput.nextInt();
         }
@@ -68,14 +73,26 @@ public class MainMenu {
             case 1:
                 performDeposit();
                 break;
-            case 3:
-                viewTransactionHistory();
+            case 2: 
+                performWithdraw();
+                break;
+            case 3: 
+                displayBalance();
                 break;
             case 4:
-                createAdditionalAccount();
+                viewTransactionHistory();
                 break;
             case 5:
+                performTransfer();
+                break;
+            case 6:
+                createAdditionalAccount();
+                break;
+            case 7:
                 performCloseAccount();
+                break;
+            case 8: 
+                performSwitchAccount();
                 break;
             case 9:
                 if (isAdmin) {
@@ -109,8 +126,28 @@ public class MainMenu {
             confirm = keyboardInput.next();
         }
         if (confirm.equals("Y")) {
-            userAccount.Close();
+            userAccount.close();
         }
+    }
+
+    public void performWithdraw() {
+        double withdrawAmount = -1;
+        while (withdrawAmount < 0) {
+            System.out.print("How much would you like to withdraw: ");
+            withdrawAmount = keyboardInput.nextDouble();
+        }
+
+        try {
+            userAccount.withdraw(withdrawAmount);
+            System.out.println("Withdrawal successful.");
+            System.out.println("New balance: $" + userAccount.getBalance());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Withdrawal failed. Insufficient funds or invalid amount.");
+        }
+    }
+
+    public void displayBalance() {
+        System.out.println("Current balance: $" + userAccount.getBalance());
     }
 
     private void viewTransactionHistory() {
@@ -157,17 +194,104 @@ public class MainMenu {
     }
 
     private void addInterestPayment() {
-        double interestAmount = -1;
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
     
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+    
+        int selection = -1;
+        while (selection < 1 || selection > accounts.size()) {
+            System.out.print("Select account number: ");
+            selection = keyboardInput.nextInt();
+        }
+    
+        BankAccount selectedAccount = accounts.get(selection - 1);
+    
+        double interestAmount = -1;
         while (interestAmount <= 0) {
-            System.out.print("Enter fee amount: ");
+            System.out.print("Enter interest amount: ");
             interestAmount = keyboardInput.nextDouble();
         }
+    
         try {
-            userAccount.adminAddInterest(interestAmount);
+            selectedAccount.adminAddInterest(interestAmount);
+            System.out.println("Interest added successfully to Account #" + selection);
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid interest payment amount.");
+        }
+    }
 
+    public BankAccount getCurrentAccount() {
+        return userAccount;
+    }
+    
+    public BankAccount getAccount(int index) {
+        return accounts.get(index);
+    }
+    
+    public void switchAccount(int accountNumber) {
+        if (accountNumber < 1 || accountNumber > accounts.size()) {
+            throw new IllegalArgumentException("Invalid account selection.");
+        }
+    
+        userAccount = accounts.get(accountNumber - 1);
+    }
+
+    public void performTransfer() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
+
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+
+        int selection = -1;
+        while (selection < 1 || selection > accounts.size()) {
+            System.out.print("Select account number: ");
+            selection = keyboardInput.nextInt();
+        }
+        
+        double amount = -1;
+        while (amount <= 0) {
+            System.out.print("How much would you like to transfer: ");
+            amount = keyboardInput.nextDouble();
+        }
+
+        try {
+            userAccount.transfer(accounts.get(selection-1), amount);
+            System.out.println("Transfer successful!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void performSwitchAccount() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
+    
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+    
+        System.out.print("Select account number: ");
+        int selection = keyboardInput.nextInt();
+    
+        try {
+            switchAccount(selection);
+            System.out.println("Switched to account #" + selection);
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -179,6 +303,7 @@ public class MainMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
+        System.out.println("Thank you for using 237 Bank App!\n");
     }
 
     public static void main(String[] args) {

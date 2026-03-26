@@ -30,20 +30,20 @@ public class BankAccountTest {
     @Test
     public void testIfAccountOpen() {
         BankAccount testAccount = new BankAccount();
-        assertTrue(testAccount.IsOpen());
+        assertTrue(testAccount.isOpen());
     }
 
     @Test
     public void testCloseAccount() { //it might be a good idea to maintain account data, but still close the account
         BankAccount testAccount = new BankAccount();
-        testAccount.Close();
-        assertTrue(!testAccount.IsOpen());
+        testAccount.close();
+        assertTrue(!testAccount.isOpen());
     }
 
     @Test
     public void testDepositToClosedAccount() { //it should be impossible to deposit to a closed account
         BankAccount testAccount = new BankAccount();
-        testAccount.Close();
+        testAccount.close();
         try {
             testAccount.deposit(50);
             fail();
@@ -85,7 +85,41 @@ public class BankAccountTest {
             account.getTransactionHistory().add("Withdrew $1");
             assertEquals(1, account.getTransactionHistory().size());
             assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testTransfer() {
+        BankAccount testAccount1 = new BankAccount();
+        BankAccount testAccount2 = new BankAccount();
+        testAccount1.deposit(50);
+        testAccount1.transfer(testAccount2,25);
+        assertEquals(25,testAccount1.getBalance(),0.01);
+        assertEquals(25,testAccount2.getBalance(),0.01);
+    }
+
+    @Test
+    public void testInvalidTransfer() {
+        BankAccount testAccount1 = new BankAccount();
+        BankAccount testAccount2 = new BankAccount();
+        try { //should fail because testAccount has no balance
+            testAccount1.transfer(testAccount2,25);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testSelfTransfer() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        try { //should fail because testAccount is self
+            testAccount.transfer(testAccount,25);
+            fail();
+        } catch (IllegalArgumentException e) {
             //do nothing, test passes
         }
     }
@@ -122,6 +156,8 @@ public class BankAccountTest {
             // do nothing, test passes
         }
     }
+
+    @Test
     public void testStartsWithOneAccount() {
         MainMenu menu = new MainMenu();
         assertEquals(1, menu.getNumberOfAccounts());
@@ -166,6 +202,8 @@ public class BankAccountTest {
             // do nothing, test passes
         }
     }
+
+    @Test
     public void testCollectFeeNegative() {
         BankAccount testAccount = new BankAccount();
         try {
@@ -213,4 +251,37 @@ public class BankAccountTest {
         assertEquals(2, testAccount.getTransactionHistory().size());
         assertTrue(testAccount.getTransactionHistory().get(1).contains("Interest deposited $5.0"));
     }
+    
+    public void testSwitchToSecondAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+
+        BankAccount secondAccount = menu.getAccount(1);
+        menu.switchAccount(2);
+
+        assertSame(secondAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testSwitchBackToFirstAccount() {
+        MainMenu menu = new MainMenu();
+        BankAccount firstAccount = menu.getCurrentAccount();
+
+        menu.createAdditionalAccount();
+        menu.switchAccount(2);
+        menu.switchAccount(1);
+
+        assertSame(firstAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testCreateMultipleAccounts() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        assertEquals(4, menu.getNumberOfAccounts());
+    }
 }
+
+
