@@ -6,14 +6,14 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    private static final int EXIT_SELECTION = 8;
-	private static final int MAX_SELECTION = 9;
+    private static final int EXIT_SELECTION = 0;
+	private static final int MAX_SELECTION = 12;
     private static final String ADMIN_PASS = "admin";
 
 
     private List<BankAccount> accounts;
 
-	  private BankAccount userAccount;
+	private BankAccount userAccount;
     private Scanner keyboardInput;
     private boolean isAdmin;
 
@@ -43,16 +43,17 @@ public class MainMenu {
     public void displayOptions() {
         System.out.println("\nWelcome to the 237 Bank App!");
         
-        System.out.println("1. Make a deposit");
-        System.out.println("2. Withdraw");
+        System.out.println("1. Make a Deposit");
+        System.out.println("2. Withdraw Money");
         System.out.println("3. Check Balance");
-        System.out.println("4. View transaction history");
-        System.out.println("5. Create additional account");
-        System.out.println("6. Close current account");
-        System.out.println("7. Switch to other account");
-        System.out.println("8. Exit the app");
+        System.out.println("4. View Transaction History");
+        System.out.println("5. Transfer Money");
+        System.out.println("6. Create additional Account");
+        System.out.println("7. Close current Account");
+        System.out.println("8. Switch to other Account");
+        System.out.println("0. Exit the App");
         if (isAdmin) {
-            System.out.println("9. Collect fee");
+            System.out.println("12. Collect fee");
         }
 
 
@@ -60,7 +61,7 @@ public class MainMenu {
 
     public int getUserSelection(int max) {
         int selection = -1;
-        while(selection < 1 || selection > max) {
+        while(selection < 0 || selection > max) {
             System.out.print("Please make a selection: ");
             selection = keyboardInput.nextInt();
         }
@@ -82,15 +83,18 @@ public class MainMenu {
                 viewTransactionHistory();
                 break;
             case 5:
-                createAdditionalAccount();
+                performTransfer();
                 break;
             case 6:
+                createAdditionalAccount();
+                break;
+            case 7:
                 performCloseAccount();
                 break;
-            case 7: 
+            case 8: 
                 performSwitchAccount();
                 break;
-            case 9:
+            case 12:
                 if (isAdmin) {
                     viewFeeCollection();
                 } else {
@@ -116,7 +120,7 @@ public class MainMenu {
             confirm = keyboardInput.next();
         }
         if (confirm.equals("Y")) {
-            userAccount.Close();
+            userAccount.close();
         }
     }
 
@@ -199,6 +203,37 @@ public class MainMenu {
         userAccount = accounts.get(accountNumber - 1);
     }
 
+    public void performTransfer() {
+        if (accounts.isEmpty()) {
+            System.out.println("No accounts available.");
+            return;
+        }
+
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.println((i + 1) + ". Account #" + (i + 1));
+        }
+
+        int selection = -1;
+        while (selection < 1 || selection > accounts.size()) {
+            System.out.print("Select account number: ");
+            selection = keyboardInput.nextInt();
+        }
+        
+        double amount = -1;
+        while (amount <= 0) {
+            System.out.print("How much would you like to transfer: ");
+            amount = keyboardInput.nextDouble();
+        }
+
+        try {
+            userAccount.transfer(accounts.get(selection-1), amount);
+            System.out.println("Transfer successful!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void performSwitchAccount() {
         if (accounts.isEmpty()) {
             System.out.println("No accounts available.");
@@ -229,6 +264,7 @@ public class MainMenu {
             selection = getUserSelection(MAX_SELECTION);
             processInput(selection);
         }
+        System.out.println("Thank you for using 237 Bank App!\n");
     }
 
     public static void main(String[] args) {

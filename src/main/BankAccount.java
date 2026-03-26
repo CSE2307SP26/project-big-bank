@@ -15,8 +15,12 @@ public class BankAccount {
         this.transactionHistory = new ArrayList<>();    
     }
 
-    public boolean IsOpen() {
+    public boolean isOpen() {
         return openState;
+    }
+
+    public void close() {
+        openState = false;
     }
 
     public void deposit(double amount) {
@@ -33,16 +37,14 @@ public class BankAccount {
     public double getBalance() {
         return this.balance;
     }
-
-    public void Close() {
-        openState = false;
-    }
       
     public List<String> getTransactionHistory() {
         return transactionHistory;
     }
 
     public void withdraw(double amount) {
+        if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); }
+
         if (amount > 0 && amount <= this.balance) {
             this.balance -= amount;
             this.transactionHistory.add("Withdrew $" + amount);
@@ -53,7 +55,9 @@ public class BankAccount {
     
     public void transfer(BankAccount target, double amount) {
         if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); } 
-        if (!target.IsOpen()) { throw new IllegalStateException("!!! Target account has been closed !!!"); }
+        if (!target.isOpen()) { throw new IllegalStateException("!!! Target account has been closed !!!"); }
+
+        if(target.equals(this)) { throw new IllegalArgumentException("!!! Cannot transfer to own account !!!");}
 
         if(amount > 0) {
             //first make sure we can withdraw the intended value
