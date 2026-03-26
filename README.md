@@ -20,14 +20,15 @@
 9. A bank adminstrator should be able to add an interest payment to an existing account when necessary. (saanya)
 
 ## Bonus story
-A bank customer should be able to switch between accounts.
+1. A bank customer should be able to switch between accounts.
 
 ## What user stories do you intend to complete next iteration?
 TBD
 
 ## Is there anything that you implemented but doesn't currently work?
-Some edge-case UI interactions may not be handled properly (ie, withdrawing from a closed account)
+1. Some edge-case UI interactions may not be handled properly (ie, withdrawing from a closed account)
 
 ## What commands are needed to compile and run your code from the command line?
 javac BankAccount.java MainMenu.java
+
 java MainMenu
