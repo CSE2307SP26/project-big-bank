@@ -122,6 +122,8 @@ public class BankAccountTest {
             // do nothing, test passes
         }
     }
+
+    @Test
     public void testStartsWithOneAccount() {
         MainMenu menu = new MainMenu();
         assertEquals(1, menu.getNumberOfAccounts());
@@ -166,6 +168,8 @@ public class BankAccountTest {
             // do nothing, test passes
         }
     }
+
+    @Test
     public void testCollectFeeNegative() {
         BankAccount testAccount = new BankAccount();
         try {

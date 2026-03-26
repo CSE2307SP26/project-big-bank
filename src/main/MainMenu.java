@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    private static final int EXIT_SELECTION = 7;
+    private static final int EXIT_SELECTION = 8;
 	private static final int MAX_SELECTION = 9;
     private static final String ADMIN_PASS = "admin";
 
@@ -49,8 +49,8 @@ public class MainMenu {
         System.out.println("4. View transaction history");
         System.out.println("5. Create additional account");
         System.out.println("6. Close current account");
-
-        System.out.println("7. Exit the app");
+        System.out.println("7. Switch to other account");
+        System.out.println("8. Exit the app");
         if (isAdmin) {
             System.out.println("9. Collect fee");
         }
@@ -87,7 +87,7 @@ public class MainMenu {
             case 6:
                 performCloseAccount();
                 break;
-            case 6:
+            case 7: 
                 performSwitchAccount();
                 break;
             case 9:
@@ -124,7 +124,7 @@ public class MainMenu {
         double withdrawAmount = -1;
         while (withdrawAmount < 0) {
             System.out.print("How much would you like to withdraw: ");
-            withdrawAmount = keyboardINput.nextDouble();
+            withdrawAmount = keyboardInput.nextDouble();
         }
 
         try {
@@ -137,7 +137,7 @@ public class MainMenu {
     }
 
     public void displayBalance() {
-        System.out.printlnt("Current balance: $" + userAccount.getBalance());
+        System.out.println("Current balance: $" + userAccount.getBalance());
     }
 
     private void viewTransactionHistory() {
