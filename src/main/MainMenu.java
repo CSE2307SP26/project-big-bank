@@ -6,9 +6,10 @@ import java.util.Scanner;
 
 public class MainMenu {
 
-    private static final int EXIT_SELECTION = 2;
-	  private static final int MAX_SELECTION = 9;
+    private static final int EXIT_SELECTION = 8;
+	private static final int MAX_SELECTION = 9;
     private static final String ADMIN_PASS = "admin";
+
 
     private List<BankAccount> accounts;
 
@@ -43,11 +44,13 @@ public class MainMenu {
         System.out.println("\nWelcome to the 237 Bank App!");
         
         System.out.println("1. Make a deposit");
-        System.out.println("2. Exit the app");
-        System.out.println("3. View transaction history");
-        System.out.println("4. Create additional account");
-        System.out.println("5. Close current account");
-        System.out.println("6. Switch to other account");
+        System.out.println("2. Withdraw");
+        System.out.println("3. Check Balance");
+        System.out.println("4. View transaction history");
+        System.out.println("5. Create additional account");
+        System.out.println("6. Close current account");
+        System.out.println("7. Switch to other account");
+        System.out.println("8. Exit the app");
         if (isAdmin) {
             System.out.println("9. Collect fee");
         }
@@ -69,16 +72,22 @@ public class MainMenu {
             case 1:
                 performDeposit();
                 break;
-            case 3:
-                viewTransactionHistory();
+            case 2: 
+                performWithdraw();
+                break;
+            case 3: 
+                displayBalance();
                 break;
             case 4:
-                createAdditionalAccount();
+                viewTransactionHistory();
                 break;
             case 5:
-                performCloseAccount();
+                createAdditionalAccount();
                 break;
             case 6:
+                performCloseAccount();
+                break;
+            case 7: 
                 performSwitchAccount();
                 break;
             case 9:
@@ -109,6 +118,26 @@ public class MainMenu {
         if (confirm.equals("Y")) {
             userAccount.Close();
         }
+    }
+
+    public void performWithdraw() {
+        double withdrawAmount = -1;
+        while (withdrawAmount < 0) {
+            System.out.print("How much would you like to withdraw: ");
+            withdrawAmount = keyboardInput.nextDouble();
+        }
+
+        try {
+            userAccount.withdraw(withdrawAmount);
+            System.out.println("Withdrawal successful.");
+            System.out.println("New balance: $" + userAccount.getBalance());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Withdrawal failed. Insufficient funds or invalid amount.");
+        }
+    }
+
+    public void displayBalance() {
+        System.out.println("Current balance: $" + userAccount.getBalance());
     }
 
     private void viewTransactionHistory() {
