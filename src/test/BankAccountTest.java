@@ -1,11 +1,9 @@
 package test;
 
 import main.BankAccount;
+import main.MainMenu;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,6 +50,7 @@ public class BankAccountTest {
         } catch (IllegalStateException e) {
             //test passes
         }
+    }
 
     @Test
     public void testNewAccountHasEmptyHistory() {
@@ -112,4 +111,138 @@ public class BankAccountTest {
             //do nothing, test passes
         }
     }
+
+    @Test
+    public void testCheckBalance() {
+        BankAccount account = new BankAccount();
+        assertEquals(0.0, account.getBalance(), 0.01);
+    }
+
+
+    @Test
+    public void testCheckBalanceAfterDeposit() {
+        BankAccount account = new BankAccount();
+        account.deposit(500.0);
+        assertEquals(500.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testWithdraw() {
+        BankAccount account = new BankAccount();
+        account.deposit(500.0);
+        account.withdraw(100.0);
+        assertEquals(400.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testInvalidWithdraw() {
+        BankAccount account = new BankAccount();
+        try {
+            account.withdraw(-50.0);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testStartsWithOneAccount() {
+        MainMenu menu = new MainMenu();
+        assertEquals(1, menu.getNumberOfAccounts());
+    }
+
+    @Test
+    public void testAddAccountAddsOneAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        assertEquals(2, menu.getNumberOfAccounts());
+    
+    }
+
+    @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 
+    @Test
+    public void testCollectFee() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(100);
+        testAccount.adminCollectFee(10);
+        assertEquals(90, testAccount.getBalance());
+    }
+
+    @Test
+    public void testCollectFeeTooLarge() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(20);
+        try {
+            testAccount.adminCollectFee(50);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testWithdrawInsufficientFunds() {
+        BankAccount account = new BankAccount();
+        try {
+            account.withdraw(200.0);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // do nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeNegative() {
+        BankAccount testAccount = new BankAccount();
+        try {
+            testAccount.adminCollectFee(-10);
+            fail();
+        } catch (IllegalArgumentException e) {
+            //does nothing, test passes
+        }
+    }
+
+    @Test
+    public void testCollectFeeUpdatesHistory() {
+        BankAccount testAccount = new BankAccount();
+        testAccount.deposit(50);
+        testAccount.adminCollectFee(5);
+        assertEquals(2, testAccount.getTransactionHistory().size());
+        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
+
+    }
+
+    @Test
+    public void testSwitchToSecondAccount() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+
+        BankAccount secondAccount = menu.getAccount(1);
+        menu.switchAccount(2);
+
+        assertSame(secondAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testSwitchBackToFirstAccount() {
+        MainMenu menu = new MainMenu();
+        BankAccount firstAccount = menu.getCurrentAccount();
+
+        menu.createAdditionalAccount();
+        menu.switchAccount(2);
+        menu.switchAccount(1);
+
+        assertSame(firstAccount, menu.getCurrentAccount());
+    }
+
+    @Test
+    public void testCreateMultipleAccounts() {
+        MainMenu menu = new MainMenu();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        menu.createAdditionalAccount();
+        assertEquals(4, menu.getNumberOfAccounts());
+    }
 }
+
+

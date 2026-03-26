@@ -42,6 +42,15 @@ public class BankAccount {
         return transactionHistory;
     }
 
+    public void withdraw(double amount) {
+        if (amount > 0 && amount <= this.balance) {
+            this.balance -= amount;
+            this.transactionHistory.add("Withdrew $" + amount);
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+    
     public void transfer(BankAccount target, double amount) {
         if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); } 
         if (!target.IsOpen()) { throw new IllegalStateException("!!! Target account has been closed !!!"); }
@@ -60,4 +69,16 @@ public class BankAccount {
             throw new IllegalArgumentException();
         }
     }
+
+    public void adminCollectFee(double amount){
+        if (amount <= 0){
+            throw new IllegalArgumentException();
+        }
+        if (amount > this.balance) {
+            throw new IllegalArgumentException();
+        }
+        this.balance -= amount;
+        this.transactionHistory.add("Fee collected $" + amount);
+    }
 }
+
