@@ -4,9 +4,9 @@ import java.util.List;
 
 public class BankAccount {
 
-    private double balance;
+    protected double balance;
     private boolean open;
-    private final TransactionHistory history = new TransactionHistory();
+    protected final TransactionHistory history = new TransactionHistory();
     private String name;
 
     public BankAccount() {

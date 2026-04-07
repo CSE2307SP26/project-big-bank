@@ -2,7 +2,9 @@ package test;
 
 import main.AdminAccount;
 import main.BankAccount;
+import main.CheckingAccount;
 import main.MainMenu;
+import main.SavingsAccount;
 import main.Transaction;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -235,5 +237,102 @@ public class BankAccountTest {
         BankAccount account = new BankAccount();
         account.setName("My Account");
         assertEquals("My Account", account.getName());
+    }
+
+    @Test
+    public void testCheckingAccountDefaultName() {
+        CheckingAccount account = new CheckingAccount();
+        assertEquals("Checking Account", account.getName());
+    }
+
+    @Test
+    public void testSavingsAccountDefaultName() {
+        SavingsAccount account = new SavingsAccount();
+        assertEquals("Savings Account", account.getName());
+    }
+
+    @Test 
+    public void testCheckingOverdraft() {
+        CheckingAccount account = new CheckingAccount();
+        account.deposit(50);
+        account.withdraw(80);
+        assertTrue(account.getBalance() < 0);
+    }
+
+    @Test 
+    public void testCheckingOverdraftFeeCharge() {
+        CheckingAccount account = new CheckingAccount();
+        account.deposit(50);
+        account.withdraw(80);
+        assertEquals(-35.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testCheckingOverdraftLimits() {
+        CheckingAccount account = new CheckingAccount();
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(150));
+    }
+
+    @Test
+    public void testCheckingNoOverdraftIfPositive() {
+        CheckingAccount account = new CheckingAccount();
+        account.deposit(100);
+        account.withdraw(50);
+        assertEquals(50.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testCheckingOverdraftRecordedHistory() {
+        CheckingAccount account = new CheckingAccount();
+        account.deposit(50);
+        account.withdraw(80);
+        assertEquals(3, account.getTransactionHistory().size());
+        assertTrue(account.getTransactionHistory().get(2).toString().contains("FEE"));
+    }
+
+    @Test
+    public void testSavingsMinimum() {
+        SavingsAccount account = new SavingsAccount();
+        account.deposit(50);
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(30));
+    }
+
+    @Test
+    public void testSavingsAllowedWithdraw() {
+        SavingsAccount account = new SavingsAccount();
+        account.deposit(100);
+        account.withdraw(50);
+        assertEquals(50.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testSavingsMonthlyWithdrawLimit() {
+        SavingsAccount account = new SavingsAccount();
+        account.deposit(1000);
+        for (int i = 0; i < 6; i++) {
+            account.withdraw(10);
+        }
+        assertThrows(IllegalStateException.class, () -> account.withdraw(10));
+    }
+
+    @Test
+    public void testSavingsMonthlyReset() {
+        SavingsAccount account = new SavingsAccount();
+        account.deposit(1000);
+        for (int i = 0; i < 6; i++) {
+            account.withdraw(10);
+        }
+        account.resetMonthlyWithdrawals();
+        account.withdraw(10);
+        assertEquals(930.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testSavingsCountWithdrawals() {
+        SavingsAccount account = new SavingsAccount();
+        account.deposit(500);
+        account.withdraw(10);
+        account.withdraw(10);
+        assertEquals(2, account.getWithdrawalsThisMonth());
     }
 }
