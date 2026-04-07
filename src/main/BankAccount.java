@@ -1,98 +1,74 @@
 package main;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.List;
 
 public class BankAccount {
 
     private double balance;
-    private boolean openState;
-    private List<String> transactionHistory;
+    private boolean open;
+    private final TransactionHistory history = new TransactionHistory();
+    private String name;
 
     public BankAccount() {
         this.balance = 0;
-        this.openState = true;
-        this.transactionHistory = new ArrayList<>();    
+        this.open = true;
     }
 
-    public boolean isOpen() {
-        return openState;
+    public boolean isOpen() { 
+        return open; 
+    }
+
+    public double getBalance() { 
+        return balance; 
+    }
+
+    public List<Transaction> getTransactionHistory() {
+        return history.getAll();
     }
 
     public void close() {
-        openState = false;
+        open = false;
+    }
+
+    public String getName() {
+        return name != null ? name: "Unnamed Account";
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void deposit(double amount) {
-        if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); }
-
-        if(amount > 0) {
-            this.balance += amount;
-            this.transactionHistory.add("Deposited $" + amount);
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    public double getBalance() {
-        return this.balance;
-    }
-      
-    public List<String> getTransactionHistory() {
-        return transactionHistory;
+        AccountValidator.requireOpen(open);
+        AccountValidator.requirePositiveAmount(amount);
+        balance += amount;
+        history.record(Transaction.Type.DEPOSIT, amount);
     }
 
     public void withdraw(double amount) {
-        if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); }
-
-        if (amount > 0 && amount <= this.balance) {
-            this.balance -= amount;
-            this.transactionHistory.add("Withdrew $" + amount);
-        } else {
-            throw new IllegalArgumentException();
-        }
+        AccountValidator.requireOpen(open);
+        AccountValidator.requirePositiveAmount(amount);
+        AccountValidator.requireSufficientFunds(balance, amount);
+        balance -= amount;
+        history.record(Transaction.Type.WITHDRAWAL, amount);
     }
 
-    
-    
     public void transfer(BankAccount target, double amount) {
-        if (!openState) { throw new IllegalStateException("!!! This account has been closed !!!"); } 
-        if (!target.isOpen()) { throw new IllegalStateException("!!! Target account has been closed !!!"); }
+        AccountValidator.requireOpen(open);
+        AccountValidator.requireOpen(target.isOpen());
+        AccountValidator.requireDistinctAccounts(this, target);
+        AccountValidator.requirePositiveAmount(amount);
+        AccountValidator.requireSufficientFunds(balance, amount);
 
-        if(target.equals(this)) { throw new IllegalArgumentException("!!! Cannot transfer to own account !!!");}
+        balance -= amount;
+        history.record(Transaction.Type.TRANSFER_OUT, amount);
 
-        if(amount > 0) {
-            //first make sure we can withdraw the intended value
-            try {
-                this.withdraw(amount);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("!!! Account lacks funds to transfer !!!");
-            }
-
-            target.deposit(amount);
-
-        } else {
-            throw new IllegalArgumentException();
-        }
+        target.balance += amount;
+        target.history.record(Transaction.Type.TRANSFER_IN, amount);
     }
 
-    public void adminCollectFee(double amount){
-        if (amount <= 0){
-            throw new IllegalArgumentException();
-        }
-        if (amount > this.balance) {
-            throw new IllegalArgumentException();
-        }
-        this.balance -= amount;
-        this.transactionHistory.add("Fee collected $" + amount);
-    }
-
-    public void adminAddInterest(double amount){
-        if (amount <= 0){
-            throw new IllegalArgumentException();
-        }
-        this.balance += amount;
-        this.transactionHistory.add("Interest deposited $" + amount);
+    void applyAdjustment(double delta, Transaction.Type type) {
+        balance += delta;
+        history.record(type, Math.abs(delta));
     }
 }
-

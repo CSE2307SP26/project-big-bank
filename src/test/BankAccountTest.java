@@ -1,127 +1,93 @@
 package test;
 
+import main.AdminAccount;
 import main.BankAccount;
 import main.MainMenu;
+import main.Transaction;
 
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
 public class BankAccountTest {
 
     @Test
     public void testDeposit() {
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(50);
-        assertEquals(50, testAccount.getBalance(), 0.01);
+        BankAccount account = new BankAccount();
+        account.deposit(50);
+        assertEquals(50, account.getBalance(), 0.01);
     }
 
     @Test
     public void testInvalidDeposit() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            testAccount.deposit(-50);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        assertThrows(IllegalArgumentException.class, () -> account.deposit(-50));
     }
 
     @Test
     public void testIfAccountOpen() {
-        BankAccount testAccount = new BankAccount();
-        assertTrue(testAccount.isOpen());
+        BankAccount account = new BankAccount();
+        assertTrue(account.isOpen());
     }
 
     @Test
-    public void testCloseAccount() { //it might be a good idea to maintain account data, but still close the account
-        BankAccount testAccount = new BankAccount();
-        testAccount.close();
-        assertTrue(!testAccount.isOpen());
+    public void testCloseAccount() {
+        BankAccount account = new BankAccount();
+        account.close();
+        assertFalse(account.isOpen());
     }
 
     @Test
-    public void testDepositToClosedAccount() { //it should be impossible to deposit to a closed account
-        BankAccount testAccount = new BankAccount();
-        testAccount.close();
-        try {
-            testAccount.deposit(50);
-            fail();
-        } catch (IllegalStateException e) {
-            //test passes
-        }
+    public void testDepositToClosedAccount() {
+        BankAccount account = new BankAccount();
+        account.close();
+        assertThrows(IllegalStateException.class, () -> account.deposit(50));
     }
 
     @Test
     public void testNewAccountHasEmptyHistory() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            BankAccount account = new BankAccount();
-            assertTrue(account.getTransactionHistory().isEmpty());
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        assertTrue(account.getTransactionHistory().isEmpty());
     }
 
     @Test
     public void testDepositAddedToTransactionHistory() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            BankAccount account = new BankAccount();
-            account.deposit(10.0);
-            assertEquals(1, account.getTransactionHistory().size());
-            assertTrue(account.getTransactionHistory().get(0).contains("Deposited $10.0"));
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        account.deposit(10.0);
+        assertEquals(1, account.getTransactionHistory().size());
+        assertTrue(account.getTransactionHistory().get(0).toString().contains("DEPOSIT"));
     }
 
     @Test
     public void testWithdrawalAddedToTransactionHistory() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            BankAccount account = new BankAccount();
-            // Note: Command added manually to transaction history as to not rely on withdraw method:
-            account.getTransactionHistory().add("Withdrew $1");
-            assertEquals(1, account.getTransactionHistory().size());
-            assertTrue(account.getTransactionHistory().get(0).contains("Withdrew $1"));
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        account.deposit(50.0);
+        account.withdraw(10.0);
+        assertEquals(2, account.getTransactionHistory().size());
+        assertTrue(account.getTransactionHistory().get(1).toString().contains("WITHDRAWAL"));
     }
 
     @Test
     public void testTransfer() {
-        BankAccount testAccount1 = new BankAccount();
-        BankAccount testAccount2 = new BankAccount();
-        testAccount1.deposit(50);
-        testAccount1.transfer(testAccount2,25);
-        assertEquals(25,testAccount1.getBalance(),0.01);
-        assertEquals(25,testAccount2.getBalance(),0.01);
+        BankAccount account1 = new BankAccount();
+        BankAccount account2 = new BankAccount();
+        account1.deposit(50);
+        account1.transfer(account2, 25);
+        assertEquals(25, account1.getBalance(), 0.01);
+        assertEquals(25, account2.getBalance(), 0.01);
     }
 
     @Test
     public void testInvalidTransfer() {
-        BankAccount testAccount1 = new BankAccount();
-        BankAccount testAccount2 = new BankAccount();
-        try { //should fail because testAccount has no balance
-            testAccount1.transfer(testAccount2,25);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account1 = new BankAccount();
+        BankAccount account2 = new BankAccount();
+        assertThrows(IllegalArgumentException.class, () -> account1.transfer(account2, 25));
     }
 
     @Test
     public void testSelfTransfer() {
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(50);
-        try { //should fail because testAccount is self
-            testAccount.transfer(testAccount,25);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //do nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        account.deposit(50);
+        assertThrows(IllegalArgumentException.class, () -> account.transfer(account, 25));
     }
 
     @Test
@@ -129,7 +95,6 @@ public class BankAccountTest {
         BankAccount account = new BankAccount();
         assertEquals(0.0, account.getBalance(), 0.01);
     }
-
 
     @Test
     public void testCheckBalanceAfterDeposit() {
@@ -149,12 +114,13 @@ public class BankAccountTest {
     @Test
     public void testInvalidWithdraw() {
         BankAccount account = new BankAccount();
-        try {
-            account.withdraw(-50.0);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // do nothing, test passes
-        }
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(-50.0));
+    }
+
+    @Test
+    public void testWithdrawInsufficientFunds() {
+        BankAccount account = new BankAccount();
+        assertThrows(IllegalArgumentException.class, () -> account.withdraw(200.0));
     }
 
     @Test
@@ -168,109 +134,84 @@ public class BankAccountTest {
         MainMenu menu = new MainMenu();
         menu.createAdditionalAccount();
         assertEquals(2, menu.getNumberOfAccounts());
-    
     }
 
-    @SuppressWarnings("deprecation") //said that assertEquals was deprecated for comparing doubles? 
     @Test
     public void testCollectFee() {
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(100);
-        testAccount.adminCollectFee(10);
-        assertEquals(90, testAccount.getBalance());
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        account.deposit(100);
+        admin.collectFee(10);
+        assertEquals(90, account.getBalance(), 0.01);
     }
 
     @Test
     public void testCollectFeeTooLarge() {
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(20);
-        try {
-            testAccount.adminCollectFee(50);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //does nothing, test passes
-        }
-    }
-
-    @Test
-    public void testWithdrawInsufficientFunds() {
         BankAccount account = new BankAccount();
-        try {
-            account.withdraw(200.0);
-            fail();
-        } catch (IllegalArgumentException e) {
-            // do nothing, test passes
-        }
+        AdminAccount admin = new AdminAccount(account);
+        account.deposit(20);
+        assertThrows(IllegalArgumentException.class, () -> admin.collectFee(50));
     }
 
     @Test
     public void testCollectFeeNegative() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            testAccount.adminCollectFee(-10);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //does nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        assertThrows(IllegalArgumentException.class, () -> admin.collectFee(-10));
     }
 
     @Test
     public void testCollectFeeUpdatesHistory() {
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(50);
-        testAccount.adminCollectFee(5);
-        assertEquals(2, testAccount.getTransactionHistory().size());
-        assertTrue(testAccount.getTransactionHistory().get(1).contains("Fee collected $5.0"));
-
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        account.deposit(50);
+        admin.collectFee(5);
+        assertEquals(2, account.getTransactionHistory().size());
+        assertTrue(account.getTransactionHistory().get(1).toString().contains("FEE"));
     }
 
     @Test
-    public void testInterestPayment(){
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(50);
-        testAccount.adminAddInterest(20);
-        assertEquals(70, testAccount.getBalance());
+    public void testInterestPayment() {
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        account.deposit(50);
+        admin.addInterest(20);
+        assertEquals(70, account.getBalance(), 0.01);
     }
 
     @Test
     public void testInterestPaymentNegative() {
-        BankAccount testAccount = new BankAccount();
-        try {
-            testAccount.adminAddInterest(-10);
-            fail();
-        } catch (IllegalArgumentException e) {
-            //does nothing, test passes
-        }
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        assertThrows(IllegalArgumentException.class, () -> admin.addInterest(-10));
     }
 
     @Test
-    public void testInterestPaymentUpdatesHistory(){
-        BankAccount testAccount = new BankAccount();
-        testAccount.deposit(50);
-        testAccount.adminAddInterest(5);
-        assertEquals(2, testAccount.getTransactionHistory().size());
-        assertTrue(testAccount.getTransactionHistory().get(1).contains("Interest deposited $5.0"));
+    public void testInterestPaymentUpdatesHistory() {
+        BankAccount account = new BankAccount();
+        AdminAccount admin = new AdminAccount(account);
+        account.deposit(50);
+        admin.addInterest(5);
+        assertEquals(2, account.getTransactionHistory().size());
+        assertTrue(account.getTransactionHistory().get(1).toString().contains("INTEREST"));
     }
-    
+
+    @Test
     public void testSwitchToSecondAccount() {
         MainMenu menu = new MainMenu();
         menu.createAdditionalAccount();
-
         BankAccount secondAccount = menu.getAccount(1);
         menu.switchAccount(2);
-
         assertSame(secondAccount, menu.getCurrentAccount());
     }
 
     @Test
     public void testSwitchBackToFirstAccount() {
         MainMenu menu = new MainMenu();
-        BankAccount firstAccount = menu.getCurrentAccount();
-
+        BankAccount firstAccount = menu.getAccount(0);
         menu.createAdditionalAccount();
         menu.switchAccount(2);
         menu.switchAccount(1);
-
         assertSame(firstAccount, menu.getCurrentAccount());
     }
 
@@ -282,6 +223,17 @@ public class BankAccountTest {
         menu.createAdditionalAccount();
         assertEquals(4, menu.getNumberOfAccounts());
     }
+
+    @Test
+    public void testAccountDefaultName() {
+        BankAccount account = new BankAccount();
+        assertEquals("Unnamed Account", account.getName());
+    }
+
+    @Test
+    public void testRenameAccount() {
+        BankAccount account = new BankAccount();
+        account.setName("My Account");
+        assertEquals("My Account", account.getName());
+    }
 }
-
-

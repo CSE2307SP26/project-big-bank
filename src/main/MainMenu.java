@@ -2,313 +2,226 @@ package main;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class MainMenu {
 
     private static final int EXIT_SELECTION = 0;
-	private static final int MAX_SELECTION = 12;
     private static final String ADMIN_PASS = "admin";
 
-
-    private List<BankAccount> accounts;
-	private BankAccount userAccount;
-    private Scanner keyboardInput;
+    private final List<BankAccount> accounts;
+    private BankAccount userAccount;
+    private AdminAccount adminAccount;
+    private final ConsoleUI ui;
     private boolean isAdmin;
 
     public MainMenu() {
-        this.userAccount = new BankAccount();
-        this.keyboardInput = new Scanner(System.in);
+        this.ui = new ConsoleUI();
         this.accounts = new ArrayList<>();
-        this.accounts.add(this.userAccount);
+        this.userAccount = new BankAccount();
+        this.adminAccount = new AdminAccount(userAccount);
+        this.accounts.add(userAccount);
     }
 
-    private void authenticate(){
-        System.out.print("Enter admin password (or type anything for regular user): ");
-        String input = keyboardInput.next();
+    private void setCurrentAccount(BankAccount account) {
+        userAccount = account;
+        adminAccount = new AdminAccount(account);
+    }
+
+    public int getNumberOfAccounts()       { return accounts.size(); }
+    public BankAccount getCurrentAccount() { return userAccount; }
+    public BankAccount getAccount(int i)   { return accounts.get(i); }
+    public boolean isAdmin()               { return isAdmin; }
+
+    private void authenticate() {
+        String input = ui.promptString("Enter admin password (or press Enter for regular user): ");
         if (input.equals(ADMIN_PASS)) {
             isAdmin = true;
-            System.out.println("Admin access granted");
+            System.out.println("Admin access granted.");
         } else {
             isAdmin = false;
-            System.out.println("Continuing as regular user");
+            System.out.println("Continuing as regular user.");
         }
-    }
-
-    public boolean isAdmin() {
-        return isAdmin;
     }
 
     public void displayOptions() {
         System.out.println("\nWelcome to the 237 Bank App!");
-        
         System.out.println("1. Make a Deposit");
         System.out.println("2. Withdraw Money");
         System.out.println("3. Check Balance");
         System.out.println("4. View Transaction History");
         System.out.println("5. Transfer Money");
-        System.out.println("6. Create additional Account");
-        System.out.println("7. Close current Account");
-        System.out.println("8. Switch to other Account");
-        System.out.println("0. Exit the App");
+        System.out.println("6. Create Additional Account");
+        System.out.println("7. Close Current Account");
+        System.out.println("8. Switch Account");
+        System.out.println("9. Rename Current Account");
+        System.out.println("0. Exit");
         if (isAdmin) {
-            System.out.println("9. Collect fee");
-            System.out.println("10. Make interest payment");
+            System.out.println("10.  Collect Fee");
+            System.out.println("11. Add Interest Payment");
         }
-
-
     }
 
-    public int getUserSelection(int max) {
-        int selection = -1;
-        while(selection < 0 || selection > max) {
-            System.out.print("Please make a selection: ");
-            selection = keyboardInput.nextInt();
+    private void displayAccounts() {
+        System.out.println("Available accounts:");
+        for (int i = 0; i < accounts.size(); i++) {
+            System.out.printf("  %d. %s | Balance: $%.2f%n",
+                i + 1, accounts.get(i).getName(), accounts.get(i).getBalance());
         }
-        return selection;
+    }
+
+    public int getUserSelection() {
+        int max = isAdmin ? 11 : 9;
+        return ui.promptInRange("Please make a selection: ", EXIT_SELECTION, max);
     }
 
     public void processInput(int selection) {
         switch (selection) {
-            case 1:
-                performDeposit();
-                break;
-            case 2: 
-                performWithdraw();
-                break;
-            case 3: 
-                displayBalance();
-                break;
-            case 4:
-                viewTransactionHistory();
-                break;
-            case 5:
-                performTransfer();
-                break;
-            case 6:
-                createAdditionalAccount();
-                break;
-            case 7:
-                performCloseAccount();
-                break;
-            case 8: 
-                performSwitchAccount();
-                break;
-            case 9:
-                if (isAdmin) {
-                    viewFeeCollection();
-                } else {
-                    System.out.println("Unauthorized option.");
-                }
-                break;
+            case 1: performDeposit();          break;
+            case 2: performWithdraw();         break;
+            case 3: displayBalance();          break;
+            case 4: viewTransactionHistory();  break;
+            case 5: performTransfer();         break;
+            case 6: createAdditionalAccount(); break;
+            case 7: performCloseAccount();     break;
+            case 8: performSwitchAccount();    break;
+            case 9: performRenameAccount();    break;
             case 10:
-                if (isAdmin) {
-                    addInterestPayment();
-                } else {
-                    System.out.println("Unauthorized option.");
-                }
+                if (isAdmin) viewFeeCollection();
+                else System.out.println("Unauthorized option.");
+                break;
+            case 11:
+                if (isAdmin) addInterestPayment();
+                else System.out.println("Unauthorized option.");
+                break;
         }
     }
 
     public void performDeposit() {
-        double depositAmount = -1;
-        while(depositAmount < 0) {
-            System.out.print("How much would you like to deposit: ");
-            depositAmount = keyboardInput.nextInt();
-        }
-        try { userAccount.deposit(depositAmount); } catch (IllegalStateException e) { System.out.println(e.getMessage());}
-    }
-
-    public void performCloseAccount() {
-        String confirm = "";
-        while (!confirm.equals("Y") && !confirm.equals("N")) {
-            System.out.print("Account closure is permanent, are you sure? Y/N ");
-            confirm = keyboardInput.next();
-        }
-        if (confirm.equals("Y")) {
-            userAccount.close();
+        double amount = ui.promptPositiveDouble("How much would you like to deposit: ");
+        try {
+            userAccount.deposit(amount);
+            System.out.printf("Deposited $%.2f. New balance: $%.2f%n", amount, userAccount.getBalance());
+        } catch (IllegalStateException e) {
+            System.out.println(e.getMessage());
         }
     }
 
     public void performWithdraw() {
-        double withdrawAmount = -1;
-        while (withdrawAmount < 0) {
-            System.out.print("How much would you like to withdraw: ");
-            withdrawAmount = keyboardInput.nextDouble();
-        }
-
+        double amount = ui.promptPositiveDouble("How much would you like to withdraw: ");
         try {
-            userAccount.withdraw(withdrawAmount);
-            System.out.println("Withdrawal successful.");
-            System.out.println("New balance: $" + userAccount.getBalance());
-        } catch (IllegalArgumentException e) {
-            System.out.println("Withdrawal failed. Insufficient funds or invalid amount.");
+            userAccount.withdraw(amount);
+            System.out.printf("Withdrew $%.2f. New balance: $%.2f%n", amount, userAccount.getBalance());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            System.out.println("Withdrawal failed: " + e.getMessage());
         }
     }
 
     public void displayBalance() {
-        System.out.println("Current balance: $" + userAccount.getBalance());
+        System.out.printf("Current balance: $%.2f%n", userAccount.getBalance());
     }
 
     private void viewTransactionHistory() {
-        List<String> history = userAccount.getTransactionHistory();
-
+        List<Transaction> history = userAccount.getTransactionHistory();
         if (history.isEmpty()) {
             System.out.println("\nNo transactions found.\n");
             return;
         }
-
         System.out.println("\nTransaction History:");
-        for (String transaction : history) {
-            System.out.println(transaction);
+        for (Transaction t : history) {
+            System.out.println("  " + t);
         }
         System.out.println();
+    }
+
+    public void performTransfer() {
+        if (accounts.size() < 2) {
+            System.out.println("No other accounts available to transfer to.");
+            return;
+        }
+        displayAccounts();
+        int selection = ui.promptInRange("Select target account: ", 1, accounts.size());
+        double amount = ui.promptPositiveDouble("How much would you like to transfer: ");
+        try {
+            userAccount.transfer(accounts.get(selection - 1), amount);
+            System.out.println("Transfer successful!");
+        } catch (Exception e) {
+            System.out.println("Transfer failed: " + e.getMessage());
+        }
+    }
+
+    public void performCloseAccount() {
+        String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
+        if (confirm.equals("Y")) {
+            userAccount.close();
+            System.out.println("Account closed.");
+        }
     }
 
     public void createAdditionalAccount() {
         BankAccount newAccount = new BankAccount();
         accounts.add(newAccount);
-        userAccount = newAccount;
-        
-        System.out.println("Additional account has been created.");
-        System.out.println("You are now using account #" + accounts.size());
+        setCurrentAccount(newAccount);
+        System.out.println("New account created. You are now using account #" + accounts.size());
     }
 
-    public int getNumberOfAccounts() {
-        return accounts.size();
-    }
-  
-    private void viewFeeCollection() {
-        double feeAmount = -1;
-    
-        while (feeAmount <= 0) {
-            System.out.print("Enter fee amount: ");
-            feeAmount = keyboardInput.nextDouble();
-        }
-    
-        try {
-            userAccount.adminCollectFee(feeAmount);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid fee amount or insufficient balance.");
-        }
-    }
-
-    private void addInterestPayment() {
-        if (accounts.isEmpty()) {
-            System.out.println("No accounts available.");
+    public void performSwitchAccount() {
+        if (accounts.size() < 2) {
+            System.out.println("No other accounts available.");
             return;
         }
-    
-        System.out.println("Available accounts:");
-        for (int i = 0; i < accounts.size(); i++) {
-            System.out.println((i + 1) + ". Account #" + (i + 1));
-        }
-    
-        int selection = -1;
-        while (selection < 1 || selection > accounts.size()) {
-            System.out.print("Select account number: ");
-            selection = keyboardInput.nextInt();
-        }
-    
-        BankAccount selectedAccount = accounts.get(selection - 1);
-    
-        double interestAmount = -1;
-        while (interestAmount <= 0) {
-            System.out.print("Enter interest amount: ");
-            interestAmount = keyboardInput.nextDouble();
-        }
-    
-        try {
-            selectedAccount.adminAddInterest(interestAmount);
-            System.out.println("Interest added successfully to Account #" + selection);
-        } catch (IllegalArgumentException e) {
-            System.out.println("Invalid interest payment amount.");
-        }
+        displayAccounts();
+        int selection = ui.promptInRange("Select account number: ", 1, accounts.size());
+        setCurrentAccount(accounts.get(selection - 1));
+        System.out.println("Switched to account #" + selection);
     }
 
-    public BankAccount getCurrentAccount() {
-        return userAccount;
-    }
-    
-    public BankAccount getAccount(int index) {
-        return accounts.get(index);
-    }
-    
     public void switchAccount(int accountNumber) {
         if (accountNumber < 1 || accountNumber > accounts.size()) {
             throw new IllegalArgumentException("Invalid account selection.");
         }
-    
-        userAccount = accounts.get(accountNumber - 1);
+        setCurrentAccount(accounts.get(accountNumber - 1));
     }
 
-    public void performTransfer() {
-        if (accounts.isEmpty()) {
-            System.out.println("No accounts available.");
-            return;
-        }
-
-        System.out.println("Available accounts:");
-        for (int i = 0; i < accounts.size(); i++) {
-            System.out.println((i + 1) + ". Account #" + (i + 1));
-        }
-
-        int selection = -1;
-        while (selection < 1 || selection > accounts.size()) {
-            System.out.print("Select account number: ");
-            selection = keyboardInput.nextInt();
-        }
-        
-        double amount = -1;
-        while (amount <= 0) {
-            System.out.print("How much would you like to transfer: ");
-            amount = keyboardInput.nextDouble();
-        }
-
+    private void viewFeeCollection() {
+        double amount = ui.promptPositiveDouble("Enter fee amount: ");
         try {
-            userAccount.transfer(accounts.get(selection-1), amount);
-            System.out.println("Transfer successful!");
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void performSwitchAccount() {
-        if (accounts.isEmpty()) {
-            System.out.println("No accounts available.");
-            return;
-        }
-    
-        System.out.println("Available accounts:");
-        for (int i = 0; i < accounts.size(); i++) {
-            System.out.println((i + 1) + ". Account #" + (i + 1));
-        }
-    
-        System.out.print("Select account number: ");
-        int selection = keyboardInput.nextInt();
-    
-        try {
-            switchAccount(selection);
-            System.out.println("Switched to account #" + selection);
+            adminAccount.collectFee(amount);
+            System.out.printf("Fee of $%.2f collected.%n", amount);
         } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Fee failed: " + e.getMessage());
         }
+    }
+
+    private void addInterestPayment() {
+        displayAccounts();
+        int selection = ui.promptInRange("Select account number: ", 1, accounts.size());
+        double amount = ui.promptPositiveDouble("Enter interest amount: ");
+        try {
+            new AdminAccount(accounts.get(selection - 1)).addInterest(amount);
+            System.out.printf("Interest of $%.2f added to account #%d.%n", amount, selection);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Interest failed: " + e.getMessage());
+        }
+    }
+
+    public void performRenameAccount() {
+        String name = ui.promptString("Enter a name for this account: ");
+        userAccount.setName(name);
+        System.out.println("Account renamed to \"" + name + "\".");
     }
 
     public void run() {
         authenticate();
         int selection = -1;
-        while(selection != EXIT_SELECTION) {
+        while (selection != EXIT_SELECTION) {
             displayOptions();
-            selection = getUserSelection(MAX_SELECTION);
+            selection = getUserSelection();
             processInput(selection);
         }
-        System.out.println("Thank you for using 237 Bank App!\n");
+        System.out.println("Thank you for using 237 Bank App!");
     }
 
     public static void main(String[] args) {
-        MainMenu bankApp = new MainMenu();
-        bankApp.run();
+        new MainMenu().run();
     }
-
 }
