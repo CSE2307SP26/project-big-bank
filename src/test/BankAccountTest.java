@@ -223,4 +223,17 @@ public class BankAccountTest {
         menu.createAdditionalAccount();
         assertEquals(4, menu.getNumberOfAccounts());
     }
+
+    @Test
+    public void testAccountDefaultName() {
+        BankAccount account = new BankAccount();
+        assertEquals("Unnamed Account", account.getName());
+    }
+
+    @Test
+    public void testRenameAccount() {
+        BankAccount account = new BankAccount();
+        account.setName("My Account");
+        assertEquals("My Account", account.getName());
+    }
 }
