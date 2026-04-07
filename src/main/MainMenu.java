@@ -64,8 +64,8 @@ public class MainMenu {
     private void displayAccounts() {
         System.out.println("Available accounts:");
         for (int i = 0; i < accounts.size(); i++) {
-            System.out.printf("  %d. Account #%d | Balance: $%.2f%n",
-                i + 1, i + 1, accounts.get(i).getName(), accounts.get(i).getBalance());
+            System.out.printf("  %d. %s | Balance: $%.2f%n",
+                i + 1, accounts.get(i).getName(), accounts.get(i).getBalance());
         }
     }
 
