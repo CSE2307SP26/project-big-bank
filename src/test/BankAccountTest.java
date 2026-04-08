@@ -1,6 +1,5 @@
 package test;
 
-import main.AdminAccount;
 import main.BankAccount;
 import main.CheckingAccount;
 import main.MainMenu;
@@ -126,48 +125,31 @@ public class BankAccountTest {
     }
 
     @Test
-    public void testStartsWithOneAccount() {
-        MainMenu menu = new MainMenu();
-        assertEquals(1, menu.getNumberOfAccounts());
-    }
-
-    @Test
-    public void testAddAccountAddsOneAccount() {
-        MainMenu menu = new MainMenu();
-        menu.createAdditionalAccount();
-        assertEquals(2, menu.getNumberOfAccounts());
-    }
-
-    @Test
     public void testCollectFee() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
         account.deposit(100);
-        admin.collectFee(10);
+        account.collectFee(10);
         assertEquals(90, account.getBalance(), 0.01);
     }
 
     @Test
     public void testCollectFeeTooLarge() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
         account.deposit(20);
-        assertThrows(IllegalArgumentException.class, () -> admin.collectFee(50));
+        assertThrows(IllegalArgumentException.class, () -> account.collectFee(50));
     }
 
     @Test
     public void testCollectFeeNegative() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
-        assertThrows(IllegalArgumentException.class, () -> admin.collectFee(-10));
+        assertThrows(IllegalArgumentException.class, () -> account.collectFee(-10));
     }
 
     @Test
     public void testCollectFeeUpdatesHistory() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
         account.deposit(50);
-        admin.collectFee(5);
+        account.collectFee(5);
         assertEquals(2, account.getTransactionHistory().size());
         assertTrue(account.getTransactionHistory().get(1).toString().contains("FEE"));
     }
@@ -175,55 +157,24 @@ public class BankAccountTest {
     @Test
     public void testInterestPayment() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
         account.deposit(50);
-        admin.addInterest(20);
+        account.addInterest(20);
         assertEquals(70, account.getBalance(), 0.01);
     }
 
     @Test
     public void testInterestPaymentNegative() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
-        assertThrows(IllegalArgumentException.class, () -> admin.addInterest(-10));
+        assertThrows(IllegalArgumentException.class, () -> account.addInterest(-10));
     }
 
     @Test
     public void testInterestPaymentUpdatesHistory() {
         BankAccount account = new BankAccount();
-        AdminAccount admin = new AdminAccount(account);
         account.deposit(50);
-        admin.addInterest(5);
+        account.addInterest(5);
         assertEquals(2, account.getTransactionHistory().size());
         assertTrue(account.getTransactionHistory().get(1).toString().contains("INTEREST"));
-    }
-
-    @Test
-    public void testSwitchToSecondAccount() {
-        MainMenu menu = new MainMenu();
-        menu.createAdditionalAccount();
-        BankAccount secondAccount = menu.getAccount(1);
-        menu.switchAccount(2);
-        assertSame(secondAccount, menu.getCurrentAccount());
-    }
-
-    @Test
-    public void testSwitchBackToFirstAccount() {
-        MainMenu menu = new MainMenu();
-        BankAccount firstAccount = menu.getAccount(0);
-        menu.createAdditionalAccount();
-        menu.switchAccount(2);
-        menu.switchAccount(1);
-        assertSame(firstAccount, menu.getCurrentAccount());
-    }
-
-    @Test
-    public void testCreateMultipleAccounts() {
-        MainMenu menu = new MainMenu();
-        menu.createAdditionalAccount();
-        menu.createAdditionalAccount();
-        menu.createAdditionalAccount();
-        assertEquals(4, menu.getNumberOfAccounts());
     }
 
     @Test

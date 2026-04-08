@@ -71,4 +71,16 @@ public class BankAccount {
         balance += delta;
         history.record(type, Math.abs(delta));
     }
+
+    
+    public void collectFee(double amount) {
+        AccountValidator.requirePositiveAmount(amount);
+        AccountValidator.requireSufficientFunds(getBalance(), amount);
+        applyAdjustment(-amount, Transaction.Type.FEE);
+    }
+
+    public void addInterest(double amount) {
+        AccountValidator.requirePositiveAmount(amount);
+        applyAdjustment(amount, Transaction.Type.INTEREST);
+    }
 }
