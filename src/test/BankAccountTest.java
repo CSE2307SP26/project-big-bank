@@ -286,4 +286,40 @@ public class BankAccountTest {
         account.withdraw(10);
         assertEquals(2, account.getWithdrawalsThisMonth());
     }
+
+    @Test
+    public void testReopenClosedAccount() {
+        BankAccount account = new BankAccount();
+        account.close();
+        account.reopen();
+        assertTrue(account.isOpen());
+    }
+
+    @Test
+    public void testDepositAfterReopen() {
+        BankAccount account = new BankAccount();
+        account.close();
+        account.reopen();
+        account.deposit(50.0);
+        assertEquals(50.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testWithdrawAfterReopen() {
+        BankAccount account = new BankAccount();
+        account.deposit(100.0);
+        account.close();
+        account.reopen();
+        account.withdraw(25.0);
+        assertEquals(75.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testReopenKeepsExistingBalance() {
+        BankAccount account = new BankAccount();
+        account.deposit(100.0);
+        account.close();
+        account.reopen();
+        assertEquals(100.0, account.getBalance(), 0.01);
+    }
 }
