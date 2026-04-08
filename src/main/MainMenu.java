@@ -20,11 +20,23 @@ public class MainMenu {
         this.userSelection = -1;
     }
 
+    private int getStartMenuSelection() {
+        return ui.promptInRange("Please make a selection: ", 0, 2);
+    }
+
+    private int getUserMenuSelection() {
+        return ui.promptInRange("Please make a selection: ", 0, 10);
+    }
+
+    private int getAdminMenuSelection() {
+        return ui.promptInRange("Please make a selection: ", 0, 2);
+    }
+
     private void run() {
 
         while (userSelection != EXIT_SELECTION) { //Start Menu
             displayStartMenu();
-            userSelection = getUserSelection();
+            userSelection = getStartMenuSelection();
             processStartInput(userSelection);
         }
 
@@ -36,7 +48,7 @@ public class MainMenu {
 
         while (userSelection != EXIT_SELECTION) {
             displayUserOptions();
-            userSelection = getUserSelection();
+            userSelection = getUserMenuSelection();;
             processUserInput(userSelection);
         }
 
@@ -48,7 +60,7 @@ public class MainMenu {
 
         while (userSelection != EXIT_SELECTION) {
             displayAdminOptions();
-            userSelection = getUserSelection();
+            userSelection = getAdminMenuSelection();
             processAdminInput(userSelection);
         }
         
@@ -88,7 +100,8 @@ public class MainMenu {
         System.out.println("7. Close Current Account");
         System.out.println("8. Switch Account");
         System.out.println("9. Rename Current Account");
-        System.out.println("0. Log out");
+        System.out.println("10. View All Accounts and Balances");
+        System.out.println("0. Log Out");
     }
 
     private void displayAdminOptions() {
@@ -107,10 +120,6 @@ public class MainMenu {
         }
     }
 
-    private int getUserSelection() {
-        int max = isAdmin ? 11 : 9;
-        return ui.promptInRange("Please make a selection: ", EXIT_SELECTION, max);
-    }
 
     private void processStartInput(int selection) {
         switch (selection) {
@@ -130,6 +139,7 @@ public class MainMenu {
             case 7: performCloseAccount();     break;
             case 8: performSwitchAccount();    break;
             case 9: performRenameAccount();    break;
+            case 10: viewAllAccountsAndBalances(); break;
         }
     }
 
@@ -252,6 +262,14 @@ public class MainMenu {
         String name = ui.promptString("Enter a name for this account: ");
         selectedAccount.setName(name);
         System.out.println("Account renamed to \"" + name + "\".");
+    }
+
+    private void viewAllAccountsAndBalances() {
+        if (getNumberOfAccounts() == 0) {
+            System.out.println("No accounts available.");
+            return;
+        }
+        displayAccounts();
     }
 
     public static void main(String[] args) {
