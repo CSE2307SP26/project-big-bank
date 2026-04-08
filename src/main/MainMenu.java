@@ -79,6 +79,9 @@ public class MainMenu {
     private void setCurrentAccount(BankAccount account) {
         selectedAccount = account;
     }
+    public void setBankUser(BankUser user) {
+        this.bankUser = user;
+    }
 
     private int getNumberOfAccounts()       { return bankUser.getAccounts().size(); }
     private BankAccount getAccount(int i)   { return bankUser.getAccounts().get(i); }
@@ -265,11 +268,22 @@ public class MainMenu {
     }
 
     private void viewAllAccountsAndBalances() {
-        if (getNumberOfAccounts() == 0) {
-            System.out.println("No accounts available.");
-            return;
+        System.out.print(getAccountsSummary());
+    }
+
+    public String getAccountsSummary() {
+        if (bankUser == null || getNumberOfAccounts() == 0) {
+            return "No accounts available.";
         }
-        displayAccounts();
+        String result = "Available accounts:\n";
+        List<BankAccount> accounts = bankUser.getAccounts();
+        for (int i = 0; i < accounts.size(); i++) {
+            result += String.format("  %d. %s | Balance: $%.2f%n",
+                    i + 1,
+                    accounts.get(i).getName(),
+                    accounts.get(i).getBalance());
+        }
+        return result;
     }
 
     public static void main(String[] args) {
