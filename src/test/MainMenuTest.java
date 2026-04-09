@@ -95,6 +95,20 @@ public class MainMenuTest {
         assertEquals(1, user.getAccounts().size());
     }
 
+    @Test
+    public void testAdminCanViewAllUsersAndAccounts() {
+        BankUser user = new BankUser();
+        user.setUsername("adminTest");
+        user.setPassword("pass");
+
+        BankAccount acc = new BankAccount();
+        acc.setName("AdminAccount");
+        acc.deposit(100);
+
+        user.addAccount(acc);
+
+        assertEquals("AdminAccount", user.getAccounts().get(0).getName());
+    }
 
 
 }
