@@ -71,4 +71,30 @@ public class MainMenuTest {
         assertTrue(summary.contains("1."));
         assertTrue(summary.contains("2."));
     }
+
+    @Test
+    public void testNewUserCreation() {
+        BankUser user = new BankUser();
+        user.setUsername("newUser");
+        user.setPassword("pass");
+
+        user.addAccount(new BankAccount());
+
+        assertEquals(1, user.getAccounts().size());
+    }
+
+    @Test
+    public void testReturningUserKeepsAccounts() {
+        BankUser user = new BankUser();
+        user.setUsername("test");
+        user.setPassword("pass");
+
+        BankAccount acc = new BankAccount();
+        user.addAccount(acc);
+
+        assertEquals(1, user.getAccounts().size());
+    }
+
+
+
 }
