@@ -30,7 +30,7 @@ public class MainMenu {
     }
 
     private int getAdminMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 3);
+        return ui.promptInRange("Please make a selection: ", 0, 4);
     }
 
     private void run() {
@@ -146,6 +146,7 @@ public class MainMenu {
         System.out.println("\n1. Collect Fee");
         System.out.println("2. Add Interest Payment");
         System.out.println("3. Reopen Closed Account");
+        System.out.println("4. View All Accounts");
         System.out.println("0. Log Out");
     }
 
@@ -186,7 +187,8 @@ public class MainMenu {
         switch (selection) {
             case 1: viewFeeCollection();          break;
             case 2: addInterestPayment();         break;
-            case 3: reopenClosedAccount();    break;
+            case 3: reopenClosedAccount();        break;
+            case 4: viewAllUsersAndAccounts();    break;
         }
     }
 
@@ -368,6 +370,21 @@ public class MainMenu {
         );
     
         return accounts.get(selection - 1);
+    }
+
+    private void viewAllUsersAndAccounts() {
+        if (allUsers.isEmpty()) {
+            System.out.println("No users found.");
+            return;
+        }
+    
+        for (BankUser user : allUsers) {
+            System.out.println("User: " + user.getUsername());
+    
+            for (BankAccount acc : user.getAccounts()) {
+                System.out.println("  - " + acc.getName() + " | Balance: $" + acc.getBalance());
+            }
+        }
     }
 
     public static void main(String[] args) {
