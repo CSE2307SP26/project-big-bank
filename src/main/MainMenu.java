@@ -12,6 +12,7 @@ public class MainMenu {
     private final ConsoleUI ui;
     private int userSelection;
     private boolean isAdmin;
+    private static List<BankUser> allUsers = new ArrayList<>();
 
     private BankAccount selectedAccount;
 
@@ -67,12 +68,36 @@ public class MainMenu {
         userSelection = -1; //reset to prevent exit chain
     }
 
-    private void userLogOn() {
-        bankUser = new BankUser();
-        bankUser.setUsername(ui.promptString("Input username: "));
-        bankUser.setPassword(ui.promptString("Input password: "));
+    private BankUser findUser(String username) {
+        for (BankUser user:allUsers){
+            if (user.getUsername().equals(username)){
+                return user;
+            }
+        }
+        return null;
+    }
 
-        bankUser.addAccount(new BankAccount());
+    private void userLogOn() {
+        String username = ui.promptString("Input username: ");
+        BankUser isExisting = findUser(username);
+        if (isExisting!=null){
+            System.out.println("Welcome back " + username);
+            String password = ui.promptString("Input password: ");
+            while (!isExisting.checkPassword(password)){
+                System.out.println("Incorrect password. Try again");
+                password = ui.promptString("Input password: ");
+            }
+            bankUser = isExisting;
+        } else {
+            System.out.println("New user detected. Create your account:");
+            bankUser = new BankUser();
+            bankUser.setUsername(username);
+            bankUser.setPassword(ui.promptString("Input password: "));
+            bankUser.addAccount(new BankAccount());
+            allUsers.add(bankUser);
+            System.out.println("account created successfully!");
+
+        }
         selectedAccount = getAccount(0);
     }
 
