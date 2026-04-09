@@ -30,6 +30,10 @@ public class BankAccount {
         open = false;
     }
 
+    public void reopen() {
+        open = true;
+    }
+
     public String getName() {
         return name != null ? name: "Unnamed Account";
     }

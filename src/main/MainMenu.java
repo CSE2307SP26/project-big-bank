@@ -29,7 +29,7 @@ public class MainMenu {
     }
 
     private int getAdminMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 2);
+        return ui.promptInRange("Please make a selection: ", 0, 3);
     }
 
     private void run() {
@@ -83,8 +83,18 @@ public class MainMenu {
         this.bankUser = user;
     }
 
-    private int getNumberOfAccounts()       { return bankUser.getAccounts().size(); }
-    private BankAccount getAccount(int i)   { return bankUser.getAccounts().get(i); }
+    private int getNumberOfAccounts() { 
+        if (bankUser == null) {
+            return 0;
+        }
+        return bankUser.getAccounts().size(); 
+    }
+    private BankAccount getAccount(int i) {
+        if (bankUser == null) {
+            throw new IllegalStateException("No user accounts available.");
+        }
+        return bankUser.getAccounts().get(i);
+    }
 
     private void displayStartMenu() {
         System.out.println("\nWelcome to the 237 Bank App!");
@@ -110,6 +120,7 @@ public class MainMenu {
     private void displayAdminOptions() {
         System.out.println("\n1. Collect Fee");
         System.out.println("2. Add Interest Payment");
+        System.out.println("3. Reopen Closed Account");
         System.out.println("0. Log Out");
     }
 
@@ -150,6 +161,7 @@ public class MainMenu {
         switch (selection) {
             case 1: viewFeeCollection();          break;
             case 2: addInterestPayment();         break;
+            case 3: reopenClosedAccount();    break;
         }
     }
 
@@ -284,6 +296,53 @@ public class MainMenu {
                     accounts.get(i).getBalance());
         }
         return result;
+    }
+
+    private void reopenClosedAccount() {
+        List<BankAccount> closedAccounts = getClosedAccounts();
+    
+        if (closedAccounts.isEmpty()) {
+            System.out.println("No closed accounts to reopen.");
+            return;
+        }
+    
+        displayClosedAccounts(closedAccounts);
+        BankAccount selected = selectClosedAccount(closedAccounts);
+        selected.reopen();
+    
+        System.out.println("Account has been reopened.");
+    }
+
+    private List<BankAccount> getClosedAccounts() {
+        List<BankAccount> closed = new ArrayList<>();
+    
+        for (int i = 0; i < getNumberOfAccounts(); i++) {
+            BankAccount acc = getAccount(i);
+            if (!acc.isOpen()) {
+                closed.add(acc);
+            }
+        }
+    
+        return closed;
+    }
+
+    private void displayClosedAccounts(List<BankAccount> accounts) {
+        System.out.println("Closed accounts:");
+    
+        for (int i = 0; i < accounts.size(); i++) {
+            BankAccount acc = accounts.get(i);
+            System.out.println((i + 1) + ". " + acc.getName() + " | Balance: $" + acc.getBalance());
+        }
+    }
+
+    private BankAccount selectClosedAccount(List<BankAccount> accounts) {
+        int selection = ui.promptInRange(
+            "Select account to reopen: ",
+            1,
+            accounts.size()
+        );
+    
+        return accounts.get(selection - 1);
     }
 
     public static void main(String[] args) {
