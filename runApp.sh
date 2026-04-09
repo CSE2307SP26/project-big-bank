@@ -1,3 +1,7 @@
 #!/bin/bash
-javac -d out src/main/*.java
-java -cp out main.MainMenu
+javac -d . src/main/*.java
+java main.MainMenu
+
+#if this doesnt run try these first
+#chmod +x runApp.sh
+#sed -i 's/\r$//' runApp.sh
