@@ -42,5 +42,7 @@ cd the directory then
 ./runApp.sh
 
 if it fails run to correct the sh file
+
 chmod +x runApp.sh
+
 sed -i 's/\r$//' runApp.sh
