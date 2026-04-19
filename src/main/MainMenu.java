@@ -26,7 +26,7 @@ public class MainMenu {
     }
 
     private int getUserMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 10);
+        return ui.promptInRange("Please make a selection: ", 0, 11);
     }
 
     private int getAdminMenuSelection() {
@@ -89,11 +89,12 @@ public class MainMenu {
             System.out.println("New user detected. Create your account:");
             bankUser = new BankUser();
             bankUser.setUsername(username);
-            bankUser.setPassword(ui.promptString("Input password: "));
+            ui.promptPasswordSelection(bankUser);
+
             bankUser.addAccount(new BankAccount());
             allUsers.add(bankUser);
-            System.out.println("account created successfully!");
 
+            System.out.println("Account created successfully!");
         }
         selectedAccount = getAccount(0);
     }
@@ -136,6 +137,7 @@ public class MainMenu {
         System.out.println("8. Switch Account");
         System.out.println("9. Rename Current Account");
         System.out.println("10. View All Accounts and Balances");
+        System.out.println("11. Change Password");
         System.out.println("0. Log Out");
     }
 
@@ -177,6 +179,7 @@ public class MainMenu {
             case 8: performSwitchAccount();    break;
             case 9: performRenameAccount();    break;
             case 10: viewAllAccountsAndBalances(); break;
+            case 11: performChangePassword(); break;
         }
     }
 
@@ -244,7 +247,7 @@ public class MainMenu {
 
     private void performCloseAccount() {
         while(!ui.promptAuthentication(bankUser)) {}
-        
+
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
@@ -384,6 +387,11 @@ public class MainMenu {
                 System.out.println("  - " + acc.getName() + " | Balance: $" + acc.getBalance());
             }
         }
+    }
+
+    private void performChangePassword() {
+        while(!ui.promptAuthentication(bankUser)) {}
+        ui.promptPasswordSelection(bankUser);
     }
 
     public static void main(String[] args) {
