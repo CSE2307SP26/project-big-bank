@@ -37,6 +37,6 @@ public class Transaction {
 
     @Override
     public String toString() {
-        return String.format("%s: $%.2f", timestamp.format(FORMATTER), type, amount);
+        return String.format("[%s] %s: $%.2f", timestamp.format(FORMATTER), type, amount);
     }
 }
