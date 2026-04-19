@@ -82,10 +82,7 @@ public class MainMenu {
         BankUser isExisting = findUser(username);
         if (isExisting!=null){
             System.out.println("Welcome back " + username);
-            String password = ui.promptString("Input password: ");
-            while (!isExisting.checkPassword(password)){
-                System.out.println("Incorrect password. Try again");
-                password = ui.promptString("Input password: ");
+            while (!ui.promptAuthentication(isExisting)){
             }
             bankUser = isExisting;
         } else {
@@ -246,6 +243,8 @@ public class MainMenu {
     }
 
     private void performCloseAccount() {
+        while(!ui.promptAuthentication(bankUser)) {}
+        
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
