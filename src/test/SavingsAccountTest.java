@@ -2,7 +2,7 @@ package test;
 import main.SavingsAccount;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class SavingsAccountTest {
     @Test
