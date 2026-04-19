@@ -41,6 +41,10 @@ public class ConsoleUI {
         }
     }
 
+    public boolean promptAuthentication(BankUser user) {
+        return user.checkPassword(promptString("Input password: "));
+    }
+
     public String promptString(String message) {
         System.out.print(message);
         return scanner.nextLine().trim();
