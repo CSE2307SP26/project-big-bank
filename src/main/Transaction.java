@@ -12,13 +12,13 @@ public class Transaction {
     private final Type type;
     private final double amount;
     private final LocalDateTime timestamp;
-    //private String note;
+    private String note;
 
     public Transaction(Type type, double amount) {
         this.type = type;
         this.amount = amount;
         this.timestamp = LocalDateTime.now();
-        
+        this.note = "";
     }
 
     public Type getType() { 
@@ -33,10 +33,18 @@ public class Transaction {
         return timestamp;
     }
 
-    
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
 
     @Override
     public String toString() {
-        return String.format("[%s] %s: $%.2f", timestamp.format(FORMATTER), type, amount);
+        String base = String.format("[%s] %s: $%.2f", 
+        timestamp.format(FORMATTER), type, amount);
+        return note.isEmpty() ? base : base + " | Note: " + note;
     }
 }

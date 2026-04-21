@@ -137,7 +137,8 @@ public class MainMenu {
         System.out.println("8. Switch Account");
         System.out.println("9. Rename Current Account");
         System.out.println("10. View All Accounts and Balances");
-        System.out.println("11. Change Password");
+        System.out.println("11. Add Note to Transaction");
+        System.out.println("12. Change Password");
         System.out.println("0. Log Out");
     }
 
@@ -179,7 +180,8 @@ public class MainMenu {
             case 8: performSwitchAccount();    break;
             case 9: performRenameAccount();    break;
             case 10: viewAllAccountsAndBalances(); break;
-            case 11: performChangePassword(); break;
+            case 11: performAddNote(); break;
+            case 12: performChangePassword(); break;
         }
     }
 
@@ -389,9 +391,27 @@ public class MainMenu {
         }
     }
 
+
+    private void performAddNote() {
+        List<Transaction> history = selectedAccount.getTransactionHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions to add a note to.");
+            return;
+        }
+        System.out.println("Recent transactions");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.printf("  %d. %s%n", i + 1, history.get(i));
+        }
+        int selection = ui.promptInRange("Select a transaction: ", 1, history.size());
+        String note = ui.promptString("Enter note: ");
+        history.get(selection - 1).setNote(note);
+        System.out.println("Added note to transaction");
+    }
+
     private void performChangePassword() {
         while(!ui.promptAuthentication(bankUser)) {}
         ui.promptPasswordSelection(bankUser);
+
     }
 
     public static void main(String[] args) {
