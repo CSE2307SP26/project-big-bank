@@ -313,7 +313,7 @@ public class MainMenu {
     }
 
     private void handleLockedSession() {
-        System.out.println("Too many incorrect attempts. You have been logged out.");
+        System.out.println("Too many incorrect attempts. You have been logged out and account has been locked.");
         bankUser = null;
         selectedAccount = null;
         userSelection = 0;
