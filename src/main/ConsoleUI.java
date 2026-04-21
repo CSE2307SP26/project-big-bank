@@ -42,7 +42,7 @@ public class ConsoleUI {
     }
 
     public boolean promptAuthentication(BankUser user) {
-        return user.checkPassword(promptString("Input password: "));
+        return user.verifyPassword(promptString("Input password: "));
     }
 
     public String promptString(String message) {
