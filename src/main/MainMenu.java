@@ -26,7 +26,7 @@ public class MainMenu {
     }
 
     private int getUserMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 11);
+        return ui.promptInRange("Please make a selection: ", 0, 12);
     }
 
     private int getAdminMenuSelection() {
