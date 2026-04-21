@@ -42,6 +42,16 @@ public class BankUserTest {
         assertThrows(IllegalArgumentException.class, () -> newUser.setPassword(""));
     }
 
+
+    @Test
+    public void setNewPassword() {
+        BankUser newUser = new BankUser();
+        newUser.setUsername("My Name");
+        newUser.setPassword("123");
+        newUser.setPassword("456");
+        assertTrue(newUser.checkPassword("456"));
+    }
+
     @Test
     public void getAccounts() {
         BankUser newUser = new BankUser();
