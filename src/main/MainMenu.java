@@ -89,11 +89,12 @@ public class MainMenu {
             System.out.println("New user detected. Create your account:");
             bankUser = new BankUser();
             bankUser.setUsername(username);
-            bankUser.setPassword(ui.promptString("Input password: "));
+            ui.promptPasswordSelection(bankUser);
+
             bankUser.addAccount(new BankAccount());
             allUsers.add(bankUser);
-            System.out.println("account created successfully!");
 
+            System.out.println("Account created successfully!");
         }
         selectedAccount = getAccount(0);
     }
@@ -137,6 +138,7 @@ public class MainMenu {
         System.out.println("9. Rename Current Account");
         System.out.println("10. View All Accounts and Balances");
         System.out.println("11. Add Note to Transaction");
+        System.out.println("12. Change Password");
         System.out.println("0. Log Out");
     }
 
@@ -179,6 +181,7 @@ public class MainMenu {
             case 9: performRenameAccount();    break;
             case 10: viewAllAccountsAndBalances(); break;
             case 11: performAddNote(); break;
+            case 12: performChangePassword(); break;
         }
     }
 
@@ -246,7 +249,7 @@ public class MainMenu {
 
     private void performCloseAccount() {
         while(!ui.promptAuthentication(bankUser)) {}
-        
+
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
@@ -388,6 +391,7 @@ public class MainMenu {
         }
     }
 
+
     private void performAddNote() {
         List<Transaction> history = selectedAccount.getTransactionHistory();
         if (history.isEmpty()) {
@@ -402,6 +406,12 @@ public class MainMenu {
         String note = ui.promptString("Enter note: ");
         history.get(selection - 1).setNote(note);
         System.out.println("Added note to transaction");
+    }
+
+    private void performChangePassword() {
+        while(!ui.promptAuthentication(bankUser)) {}
+        ui.promptPasswordSelection(bankUser);
+
     }
 
     public static void main(String[] args) {
