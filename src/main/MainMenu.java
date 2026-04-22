@@ -30,7 +30,7 @@ public class MainMenu {
     }
 
     private int getAdminMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 4);
+        return ui.promptInRange("Please make a selection: ", 0, 5);
     }
 
     private void run() {
@@ -108,15 +108,6 @@ public class MainMenu {
     
         if (authenticateUser(existingUser)) {
             bankUser = existingUser;
-            System.out.println("New user detected. Create your account:");
-            bankUser = new BankUser();
-            bankUser.setUsername(username);
-            ui.promptPasswordSelection(bankUser);
-
-            bankUser.addAccount(new BankAccount());
-            allUsers.add(bankUser);
-
-            System.out.println("Account created successfully!");
         }
     }
 
@@ -200,6 +191,7 @@ public class MainMenu {
         System.out.println("2. Add Interest Payment");
         System.out.println("3. Reopen Closed Account");
         System.out.println("4. View All Accounts");
+        System.out.println("5. Unlock Locked User");
         System.out.println("0. Log Out");
     }
 
@@ -244,6 +236,7 @@ public class MainMenu {
             case 2: addInterestPayment();         break;
             case 3: reopenClosedAccount();        break;
             case 4: viewAllUsersAndAccounts();    break;
+            case 5: unlockLockedUser();        break;
         }
     }
 
@@ -305,8 +298,6 @@ public class MainMenu {
             return;
         }
     
-        while(!ui.promptAuthentication(bankUser)) {}
-
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
@@ -317,14 +308,18 @@ public class MainMenu {
     private boolean authenticateSensitiveAction(String prompt) {
         while (true) {
             String passwordAttempt = ui.promptString(prompt);
+    
             if (bankUser.verifyPassword(passwordAttempt)) {
                 return true;
             }
+    
             if (bankUser.isLocked()) {
                 handleLockedSession();
                 return false;
             }
-            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());        }
+    
+            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());
+        }
     }
 
     private void handleLockedSession() {
@@ -486,9 +481,57 @@ public class MainMenu {
     }
 
     private void performChangePassword() {
-        while(!ui.promptAuthentication(bankUser)) {}
+        if (!authenticateSensitiveAction("Enter password to change password: ")) {
+            return;
+        }
+    
         ui.promptPasswordSelection(bankUser);
+        System.out.println("Password changed successfully.");
+    }
 
+    private void unlockLockedUser() {
+        List<BankUser> lockedUsers = getLockedUsers();
+    
+        if (lockedUsers.isEmpty()) {
+            System.out.println("No locked users found.");
+            return;
+        }
+    
+        displayLockedUsers(lockedUsers);
+        BankUser selectedUser = selectLockedUser(lockedUsers);
+        selectedUser.unlock();
+    
+        System.out.println("User account has been unlocked.");
+    }
+
+    private List<BankUser> getLockedUsers() {
+        List<BankUser> lockedUsers = new ArrayList<>();
+    
+        for (BankUser user : allUsers) {
+            if (user.isLocked()) {
+                lockedUsers.add(user);
+            }
+        }
+    
+        return lockedUsers;
+    }
+
+    private void displayLockedUsers(List<BankUser> lockedUsers) {
+        System.out.println("Locked users:");
+    
+        for (int i = 0; i < lockedUsers.size(); i++) {
+            System.out.println((i + 1) + ". " + lockedUsers.get(i).getUsername());
+        }
+    }
+
+    private BankUser selectLockedUser(List<BankUser> lockedUsers) {
+        int selection = ui.promptInRange(
+            "Select user to unlock: ",
+            1,
+            lockedUsers.size()
+        );
+    
+        return lockedUsers.get(selection - 1);
     }
 
     public static void main(String[] args) {

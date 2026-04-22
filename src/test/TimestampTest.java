@@ -6,7 +6,7 @@ import main.Transaction;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class TimestampTest {
     @Test
