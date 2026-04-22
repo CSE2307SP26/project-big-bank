@@ -45,6 +45,16 @@ public class ConsoleUI {
         return user.verifyPassword(promptString("Input password: "));
     }
 
+    public void promptPasswordSelection(BankUser user){
+        String input1 = promptString("Input new password: ");
+        String input2 = null;
+        while(!input1.equals(input2)) {
+            input2 = promptString("Confirm password: ");
+        }
+
+        user.setPassword(input2);
+    }
+
     public String promptString(String message) {
         System.out.print(message);
         return scanner.nextLine().trim();

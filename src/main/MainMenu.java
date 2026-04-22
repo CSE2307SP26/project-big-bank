@@ -26,7 +26,7 @@ public class MainMenu {
     }
 
     private int getUserMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 10);
+        return ui.promptInRange("Please make a selection: ", 0, 11);
     }
 
     private int getAdminMenuSelection() {
@@ -108,6 +108,15 @@ public class MainMenu {
     
         if (authenticateUser(existingUser)) {
             bankUser = existingUser;
+            System.out.println("New user detected. Create your account:");
+            bankUser = new BankUser();
+            bankUser.setUsername(username);
+            ui.promptPasswordSelection(bankUser);
+
+            bankUser.addAccount(new BankAccount());
+            allUsers.add(bankUser);
+
+            System.out.println("Account created successfully!");
         }
     }
 
@@ -181,6 +190,8 @@ public class MainMenu {
         System.out.println("8. Switch Account");
         System.out.println("9. Rename Current Account");
         System.out.println("10. View All Accounts and Balances");
+        System.out.println("11. Add Note to Transaction");
+        System.out.println("12. Change Password");
         System.out.println("0. Log Out");
     }
 
@@ -222,6 +233,8 @@ public class MainMenu {
             case 8: performSwitchAccount();    break;
             case 9: performRenameAccount();    break;
             case 10: viewAllAccountsAndBalances(); break;
+            case 11: performAddNote(); break;
+            case 12: performChangePassword(); break;
         }
     }
 
@@ -292,6 +305,8 @@ public class MainMenu {
             return;
         }
     
+        while(!ui.promptAuthentication(bankUser)) {}
+
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
@@ -451,6 +466,29 @@ public class MainMenu {
                 System.out.println("  - " + acc.getName() + " | Balance: $" + acc.getBalance());
             }
         }
+    }
+
+
+    private void performAddNote() {
+        List<Transaction> history = selectedAccount.getTransactionHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions to add a note to.");
+            return;
+        }
+        System.out.println("Recent transactions");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.printf("  %d. %s%n", i + 1, history.get(i));
+        }
+        int selection = ui.promptInRange("Select a transaction: ", 1, history.size());
+        String note = ui.promptString("Enter note: ");
+        history.get(selection - 1).setNote(note);
+        System.out.println("Added note to transaction");
+    }
+
+    private void performChangePassword() {
+        while(!ui.promptAuthentication(bankUser)) {}
+        ui.promptPasswordSelection(bankUser);
+
     }
 
     public static void main(String[] args) {
