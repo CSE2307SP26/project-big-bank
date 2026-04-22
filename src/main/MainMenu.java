@@ -108,15 +108,6 @@ public class MainMenu {
     
         if (authenticateUser(existingUser)) {
             bankUser = existingUser;
-            System.out.println("New user detected. Create your account:");
-            bankUser = new BankUser();
-            bankUser.setUsername(username);
-            ui.promptPasswordSelection(bankUser);
-
-            bankUser.addAccount(new BankAccount());
-            allUsers.add(bankUser);
-
-            System.out.println("Account created successfully!");
         }
     }
 
@@ -305,8 +296,6 @@ public class MainMenu {
             return;
         }
     
-        while(!ui.promptAuthentication(bankUser)) {}
-
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
@@ -317,14 +306,18 @@ public class MainMenu {
     private boolean authenticateSensitiveAction(String prompt) {
         while (true) {
             String passwordAttempt = ui.promptString(prompt);
+    
             if (bankUser.verifyPassword(passwordAttempt)) {
                 return true;
             }
+    
             if (bankUser.isLocked()) {
                 handleLockedSession();
                 return false;
             }
-            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());        }
+    
+            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());
+        }
     }
 
     private void handleLockedSession() {
@@ -486,9 +479,12 @@ public class MainMenu {
     }
 
     private void performChangePassword() {
-        while(!ui.promptAuthentication(bankUser)) {}
+        if (!authenticateSensitiveAction("Enter password to change password: ")) {
+            return;
+        }
+    
         ui.promptPasswordSelection(bankUser);
-
+        System.out.println("Password changed successfully.");
     }
 
     public static void main(String[] args) {
