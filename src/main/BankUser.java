@@ -7,11 +7,15 @@ public class BankUser {
     private String username;
     private String password;
     private ArrayList<BankAccount> accounts;
+    private int failedAttempts;
+    private boolean locked;
 
     public BankUser() {
         this.username = "";
         this.password = "";
         this.accounts = new ArrayList<>();
+        this.failedAttempts = 0;
+        this.locked = false;
     }
 
     private boolean validateString(String test) {
@@ -43,6 +47,41 @@ public class BankUser {
     public void confirmUserSetup() { //throws error if strings dont validate
         if(!validateString(username)) { throw new IllegalArgumentException("Username must be text");}
         if(!validateString(password)) { throw new IllegalArgumentException("Password must be text");}
+    }
+
+    public int getRemainingAttempts() {
+        int remaining = 3 - failedAttempts;
+        return Math.max(remaining, 0);
+    }
+
+    public boolean verifyPassword(String input) {
+        confirmUserSetup();
+        if (locked) {
+            return false;
+        }
+        if (checkPassword(input)) {
+            failedAttempts = 0;
+            return true;
+        }
+        failedAttempts++;
+        if (failedAttempts >= 3) {
+            locked = true;
+        }
+        return false;
+    }
+
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void unlock() {
+        locked = false;
+        failedAttempts = 0;
+    }
+
+    public int getFailedAttempts() {
+        return failedAttempts;
     }
 
     public void addAccount(BankAccount account) {

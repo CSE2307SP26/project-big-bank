@@ -45,15 +45,18 @@ public class MainMenu {
     }
 
     private void runAsUser() {
-        userLogOn();
-
+        boolean loginSuccessful = userLogOn();
+        if (!loginSuccessful) {
+            userSelection = -1;
+            return;
+        }
+    
         while (userSelection != EXIT_SELECTION) {
             displayUserOptions();
-            userSelection = getUserMenuSelection();;
+            userSelection = getUserMenuSelection();
             processUserInput(userSelection);
         }
-
-        userSelection = -1; //reset to prevent exit chain
+        userSelection = -1;
     }
 
     private void runAsAdmin() {
@@ -77,15 +80,34 @@ public class MainMenu {
         return null;
     }
 
-    private void userLogOn() {
+    private boolean userLogOn() {
         String username = ui.promptString("Input username: ");
-        BankUser isExisting = findUser(username);
-        if (isExisting!=null){
-            System.out.println("Welcome back " + username);
-            while (!ui.promptAuthentication(isExisting)){
-            }
-            bankUser = isExisting;
+        BankUser existingUser = findUser(username);
+    
+        if (existingUser != null) {
+            handleExistingUserLogin(existingUser);
         } else {
+            createNewUser(username);
+        }
+    
+        if (bankUser != null) {
+            selectedAccount = getAccount(0);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleExistingUserLogin(BankUser existingUser) {
+        if (existingUser.isLocked()) {
+            System.out.println("This account is locked and cannot be accessed.");
+            bankUser = null;
+            return;
+        }
+    
+        System.out.println("Welcome back " + existingUser.getUsername());
+    
+        if (authenticateUser(existingUser)) {
+            bankUser = existingUser;
             System.out.println("New user detected. Create your account:");
             bankUser = new BankUser();
             bankUser.setUsername(username);
@@ -96,7 +118,38 @@ public class MainMenu {
 
             System.out.println("Account created successfully!");
         }
-        selectedAccount = getAccount(0);
+    }
+
+    private boolean authenticateUser(BankUser user) {
+        while (true) {
+            String passwordAttempt = ui.promptString("Input password: ");
+            if (user.verifyPassword(passwordAttempt)) {
+                return true;
+            }
+            if (user.isLocked()) {
+                handleLockedOutUser();
+                return false;
+            }
+            System.out.println("Incorrect password. Attempts remaining: " + user.getRemainingAttempts());
+        }
+    }
+
+    private void handleLockedOutUser() {
+        System.out.println("Too many incorrect attempts. This user is now locked out.");
+        bankUser = null;
+        selectedAccount = null;
+    }
+
+    private void createNewUser(String username) {
+        System.out.println("New user detected. Create your account:");
+    
+        bankUser = new BankUser();
+        bankUser.setUsername(username);
+        bankUser.setPassword(ui.promptString("Input password: "));
+        bankUser.addAccount(new BankAccount());
+        allUsers.add(bankUser);
+    
+        System.out.println("account created successfully!");
     }
 
     private void setCurrentAccount(BankAccount account) {
@@ -248,6 +301,10 @@ public class MainMenu {
     }
 
     private void performCloseAccount() {
+        if (!authenticateSensitiveAction("Enter password to close account: ")) {
+            return;
+        }
+    
         while(!ui.promptAuthentication(bankUser)) {}
 
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
@@ -255,6 +312,26 @@ public class MainMenu {
             selectedAccount.close();
             System.out.println("Account closed.");
         }
+    }
+
+    private boolean authenticateSensitiveAction(String prompt) {
+        while (true) {
+            String passwordAttempt = ui.promptString(prompt);
+            if (bankUser.verifyPassword(passwordAttempt)) {
+                return true;
+            }
+            if (bankUser.isLocked()) {
+                handleLockedSession();
+                return false;
+            }
+            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());        }
+    }
+
+    private void handleLockedSession() {
+        System.out.println("Too many incorrect attempts. You have been logged out and account has been locked.");
+        bankUser = null;
+        selectedAccount = null;
+        userSelection = 0;
     }
 
     private void createAdditionalAccount() {
