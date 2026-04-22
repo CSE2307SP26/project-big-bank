@@ -170,4 +170,46 @@ public class BankUserTest {
 
         assertFalse(user.verifyPassword("pass123"));
     }
+
+    @Test
+    public void testUnlockRemovesLock() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertFalse(user.isLocked());
+    }
+    
+    @Test
+    public void testUnlockResetsFailedAttempts() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertEquals(0, user.getFailedAttempts());
+    }
+
+    @Test
+    public void testVerifyPasswordWorksAfterUnlock() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertTrue(user.verifyPassword("pass123"));
+}
 }
