@@ -1,6 +1,7 @@
 package test;
 
 import main.BankAccount;
+import main.BankUser;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.Test;
@@ -203,5 +204,20 @@ public class BankAccountTest {
         account.close();
         account.reopen();
         assertEquals(100.0, account.getBalance(), 0.01);
+    }
+
+    @Test
+    public void testAdminCanViewTransactionHistory() {
+        BankUser user = new BankUser();
+        user.setUsername("user1");
+        user.setPassword("pass");
+
+        BankAccount acc = new BankAccount();
+        acc.deposit(100);
+        acc.withdraw(50);
+
+        user.addAccount(acc);
+
+        assertEquals(2, acc.getTransactionHistory().size());
     }
 }

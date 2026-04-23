@@ -145,5 +145,17 @@ public class MainMenuTest {
         assertTrue(menu.getAdminLog().get(0).contains("Unlocked user"));
     }
 
+    @Test
+    public void testAdminAccessToUserAccountHistoryData() {
+        BankUser user = new BankUser();
+        user.setUsername("user1");
+        user.setPassword("pass");
 
+        BankAccount acc = new BankAccount();
+        acc.deposit(100);
+
+        user.addAccount(acc);
+
+        assertEquals(1, user.getAccounts().get(0).getTransactionHistory().size());
+    }
 }

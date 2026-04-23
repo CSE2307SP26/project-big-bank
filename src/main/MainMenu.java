@@ -198,6 +198,7 @@ public class MainMenu {
         System.out.println("3. Reopen Closed Account");
         System.out.println("4. View All Accounts");
         System.out.println("5. Unlock Locked User");
+        System.out.println("6. View Account Transaction History");
         System.out.println("7. View Admin Action Log");
         System.out.println("0. Log Out");
     }
@@ -244,6 +245,7 @@ public class MainMenu {
             case 3: reopenClosedAccount();        break;
             case 4: viewAllUsersAndAccounts();    break;
             case 5: unlockLockedUser();        break;
+            case 6: adminViewTransactHistory();   break;
             case 7: viewAdminLog();             break;
         }
     }
@@ -516,6 +518,39 @@ public class MainMenu {
     
         ui.promptPasswordSelection(bankUser);
         System.out.println("Password changed successfully.");
+    }
+
+    private void adminViewTransactHistory() {
+        if (allUsers.isEmpty()) {
+            System.out.println("No users available");
+            return;
+        }
+
+        for (int i=0; i<allUsers.size(); i++) {
+            System.out.println((i+1) + "." + allUsers.get(i).getUsername());
+        }
+        int chooseUser = ui.promptInRange("Select user: ", 1, allUsers.size());
+        BankUser selectedUser = allUsers.get(chooseUser-1);
+        if (selectedUser.getAccounts().isEmpty()){
+            System.out.println("This user has no accounts");
+        }
+        ArrayList<BankAccount> accounts = selectedUser.getAccounts();
+        for (int i=0; i<accounts.size(); i++){
+            System.out.printf("%d. %s | Balance: $%.2f%n", i + 1, accounts.get(i).getName(), accounts.get(i).getBalance());
+        }
+        int accSelection = ui.promptInRange("Select account: ", 1, accounts.size());
+        BankAccount account = accounts.get(accSelection - 1);
+        List<Transaction> history = account.getTransactionHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+    
+        System.out.println("\nTransaction History:");
+        for (Transaction t : history) {
+            System.out.println("  " + t);
+        }
+    
     }
 
     private void unlockLockedUser() {

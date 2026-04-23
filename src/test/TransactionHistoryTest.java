@@ -30,4 +30,14 @@ public class TransactionHistoryTest {
         assertEquals(2, account.getTransactionHistory().size());
         assertTrue(account.getTransactionHistory().get(1).toString().contains("WITHDRAWAL"));
     }
+
+    @Test
+    public void testTransactionHistoryContainsCorrectTypes() {
+        BankAccount acc = new BankAccount();
+        acc.deposit(100);
+        acc.withdraw(40);
+
+        assertTrue(acc.getTransactionHistory().get(0).toString().contains("DEPOSIT"));
+        assertTrue(acc.getTransactionHistory().get(1).toString().contains("WITHDRAWAL"));
+    }
 }
