@@ -111,6 +111,41 @@ public class MainMenuTest {
     }
 
     @Test
+    public void testAdminLogStartsEmpty() {
+        MainMenu menu = new MainMenu();
+        assertTrue(menu.getAdminLog().isEmpty());
+    }
+
+    @Test
+    public void testAdminLogRecordsAction() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Collected fee: $10");
+
+        assertEquals(1, menu.getAdminLog().size());
+        assertTrue(menu.getAdminLog().get(0).contains("Collected fee"));
+    }
+
+    @Test
+    public void testMultipleAdminActionsLogged() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Collected fee: $10");
+        menu.getAdminLog().add("Unlocked user: testUser");
+
+        assertEquals(2, menu.getAdminLog().size());
+    }
+
+    @Test
+    public void testUnlockUserActionLogged() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Unlocked user: testUser");
+
+        assertTrue(menu.getAdminLog().get(0).contains("Unlocked user"));
+    }
+
+    @Test
     public void testAdminAccessToUserAccountHistoryData() {
         BankUser user = new BankUser();
         user.setUsername("user1");
