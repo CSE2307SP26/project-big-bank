@@ -12,6 +12,7 @@ public class MainMenu {
     private final ConsoleUI ui;
     private int userSelection;
     private boolean isAdmin;
+    private final List<String> adminLog = new ArrayList<>();
     private static List<BankUser> allUsers = new ArrayList<>();
 
     private BankAccount selectedAccount;
@@ -30,8 +31,13 @@ public class MainMenu {
     }
 
     private int getAdminMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 5);
+        return ui.promptInRange("Please make a selection: ", 0, 7);
     }
+
+    public List<String> getAdminLog() {
+        return adminLog;
+    }
+
 
     private void run() {
 
@@ -192,6 +198,7 @@ public class MainMenu {
         System.out.println("3. Reopen Closed Account");
         System.out.println("4. View All Accounts");
         System.out.println("5. Unlock Locked User");
+        System.out.println("7. View Admin Action Log");
         System.out.println("0. Log Out");
     }
 
@@ -237,7 +244,24 @@ public class MainMenu {
             case 3: reopenClosedAccount();        break;
             case 4: viewAllUsersAndAccounts();    break;
             case 5: unlockLockedUser();        break;
+            case 7: viewAdminLog();             break;
         }
+    }
+
+    private void viewAdminLog() {
+        if (adminLog.isEmpty()) {
+            System.out.println("No admin actions recorded.");
+            return;
+        }
+    
+        System.out.println("\nAdmin Action Log:");
+        for (String log : adminLog) {
+            System.out.println("  " + log);
+        }
+    }
+
+    private void logAdminAction(String action) {
+        adminLog.add(action);
     }
 
     private void performDeposit() {
@@ -358,6 +382,7 @@ public class MainMenu {
         double amount = ui.promptPositiveDouble("Enter fee amount: ");
         try {
             selectedAccount.collectFee(amount);
+            logAdminAction("Collected fee: $" + amount);
             System.out.printf("Fee of $%.2f collected.%n", amount);
         } catch (IllegalArgumentException e) {
             System.out.println("Fee failed: " + e.getMessage());
@@ -370,6 +395,7 @@ public class MainMenu {
         double amount = ui.promptPositiveDouble("Enter interest amount: ");
         try {
             getAccount(selection - 1).addInterest(amount);
+            logAdminAction("Added interest: $" + amount + " to account #" + selection);
             System.out.printf("Interest of $%.2f added to account #%d.%n", amount, selection);
         } catch (IllegalArgumentException e) {
             System.out.println("Interest failed: " + e.getMessage());
@@ -412,6 +438,7 @@ public class MainMenu {
         displayClosedAccounts(closedAccounts);
         BankAccount selected = selectClosedAccount(closedAccounts);
         selected.reopen();
+        logAdminAction("Reopened account: " + selected.getName());
     
         System.out.println("Account has been reopened.");
     }
@@ -453,6 +480,8 @@ public class MainMenu {
             System.out.println("No users found.");
             return;
         }
+    
+        logAdminAction("Viewed all users and accounts");
     
         for (BankUser user : allUsers) {
             System.out.println("User: " + user.getUsername());
@@ -500,7 +529,7 @@ public class MainMenu {
         displayLockedUsers(lockedUsers);
         BankUser selectedUser = selectLockedUser(lockedUsers);
         selectedUser.unlock();
-    
+        logAdminAction("Unlocked user: " + selectedUser.getUsername());
         System.out.println("User account has been unlocked.");
     }
 
