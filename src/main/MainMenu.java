@@ -392,17 +392,48 @@ public class MainMenu {
     }
 
     private void addInterestPayment() {
-        displayAccounts();
-        int selection = ui.promptInRange("Select account number: ", 1, getNumberOfAccounts());
+        BankUser selectedUser = selectUserForAdminAction();
+    
+        if (selectedUser == null) {
+            return;
+        }
+    
+        List<BankAccount> accounts = selectedUser.getAccounts();
+    
+        if (accounts.isEmpty()) {
+            System.out.println("This user has no accounts.");
+            return;
+        }
+    
+        displayAccounts(accounts);
+        int selection = ui.promptInRange("Select account number: ", 1, accounts.size());
         double amount = ui.promptPositiveDouble("Enter interest amount: ");
+    
         try {
-            getAccount(selection - 1).addInterest(amount);
-            logAdminAction("Added interest: $" + amount + " to account #" + selection);
+            accounts.get(selection - 1).addInterest(amount);
             System.out.printf("Interest of $%.2f added to account #%d.%n", amount, selection);
         } catch (IllegalArgumentException e) {
             System.out.println("Interest failed: " + e.getMessage());
         }
     }
+
+
+    private void displayUsers() {
+        System.out.println("Users:");
+        for (int i = 0; i < allUsers.size(); i++) {
+            System.out.println((i + 1) + ". " + allUsers.get(i).getUsername());
+        }
+    }
+
+    private void displayAccounts(List<BankAccount> accounts) {
+    System.out.println("Available accounts:");
+    for (int i = 0; i < accounts.size(); i++) {
+        System.out.printf("  %d. %s | Balance: $%.2f%n",
+            i + 1,
+            accounts.get(i).getName(),
+            accounts.get(i).getBalance());
+    }
+}
 
     private void performRenameAccount() {
         String name = ui.promptString("Enter a name for this account: ");
@@ -443,6 +474,16 @@ public class MainMenu {
         logAdminAction("Reopened account: " + selected.getName());
     
         System.out.println("Account has been reopened.");
+    }
+    private BankUser selectUserForAdminAction() {
+        if (allUsers.isEmpty()) {
+            System.out.println("No users found.");
+            return null;
+        }
+    
+        displayUsers();
+        int selection = ui.promptInRange("Select user number: ", 1, allUsers.size());
+        return allUsers.get(selection - 1);
     }
 
     private List<BankAccount> getClosedAccounts() {
