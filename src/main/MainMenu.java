@@ -12,6 +12,7 @@ public class MainMenu {
     private final ConsoleUI ui;
     private int userSelection;
     private boolean isAdmin;
+    private final List<String> adminLog = new ArrayList<>();
     private static List<BankUser> allUsers = new ArrayList<>();
 
     private BankAccount selectedAccount;
@@ -26,12 +27,17 @@ public class MainMenu {
     }
 
     private int getUserMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 10);
+        return ui.promptInRange("Please make a selection: ", 0, 12);
     }
 
     private int getAdminMenuSelection() {
-        return ui.promptInRange("Please make a selection: ", 0, 4);
+        return ui.promptInRange("Please make a selection: ", 0, 7);
     }
+
+    public List<String> getAdminLog() {
+        return adminLog;
+    }
+
 
     private void run() {
 
@@ -45,15 +51,18 @@ public class MainMenu {
     }
 
     private void runAsUser() {
-        userLogOn();
-
+        boolean loginSuccessful = userLogOn();
+        if (!loginSuccessful) {
+            userSelection = -1;
+            return;
+        }
+    
         while (userSelection != EXIT_SELECTION) {
             displayUserOptions();
-            userSelection = getUserMenuSelection();;
+            userSelection = getUserMenuSelection();
             processUserInput(userSelection);
         }
-
-        userSelection = -1; //reset to prevent exit chain
+        userSelection = -1;
     }
 
     private void runAsAdmin() {
@@ -77,28 +86,67 @@ public class MainMenu {
         return null;
     }
 
-    private void userLogOn() {
+    private boolean userLogOn() {
         String username = ui.promptString("Input username: ");
-        BankUser isExisting = findUser(username);
-        if (isExisting!=null){
-            System.out.println("Welcome back " + username);
-            String password = ui.promptString("Input password: ");
-            while (!isExisting.checkPassword(password)){
-                System.out.println("Incorrect password. Try again");
-                password = ui.promptString("Input password: ");
-            }
-            bankUser = isExisting;
+        BankUser existingUser = findUser(username);
+    
+        if (existingUser != null) {
+            handleExistingUserLogin(existingUser);
         } else {
-            System.out.println("New user detected. Create your account:");
-            bankUser = new BankUser();
-            bankUser.setUsername(username);
-            bankUser.setPassword(ui.promptString("Input password: "));
-            bankUser.addAccount(new BankAccount());
-            allUsers.add(bankUser);
-            System.out.println("account created successfully!");
-
+            createNewUser(username);
         }
-        selectedAccount = getAccount(0);
+    
+        if (bankUser != null) {
+            selectedAccount = getAccount(0);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleExistingUserLogin(BankUser existingUser) {
+        if (existingUser.isLocked()) {
+            System.out.println("This account is locked and cannot be accessed.");
+            bankUser = null;
+            return;
+        }
+    
+        System.out.println("Welcome back " + existingUser.getUsername());
+    
+        if (authenticateUser(existingUser)) {
+            bankUser = existingUser;
+        }
+    }
+
+    private boolean authenticateUser(BankUser user) {
+        while (true) {
+            String passwordAttempt = ui.promptString("Input password: ");
+            if (user.verifyPassword(passwordAttempt)) {
+                return true;
+            }
+            if (user.isLocked()) {
+                handleLockedOutUser();
+                return false;
+            }
+            System.out.println("Incorrect password. Attempts remaining: " + user.getRemainingAttempts());
+        }
+    }
+
+    private void handleLockedOutUser() {
+        System.out.println("Too many incorrect attempts. This user is now locked out.");
+        bankUser = null;
+        selectedAccount = null;
+    }
+
+    private void createNewUser(String username) {
+        System.out.println("New user detected. Create your account:");
+    
+        bankUser = new BankUser();
+        bankUser.setUsername(username);
+        bankUser.setPassword(ui.promptString("Input password: "));
+        bankUser.addAccount(new BankAccount());
+        allUsers.add(bankUser);
+    
+        System.out.println("account created successfully!");
     }
 
     private void setCurrentAccount(BankAccount account) {
@@ -139,6 +187,8 @@ public class MainMenu {
         System.out.println("8. Switch Account");
         System.out.println("9. Rename Current Account");
         System.out.println("10. View All Accounts and Balances");
+        System.out.println("11. Add Note to Transaction");
+        System.out.println("12. Change Password");
         System.out.println("0. Log Out");
     }
 
@@ -147,6 +197,9 @@ public class MainMenu {
         System.out.println("2. Add Interest Payment");
         System.out.println("3. Reopen Closed Account");
         System.out.println("4. View All Accounts");
+        System.out.println("5. Unlock Locked User");
+        System.out.println("6. View Account Transaction History");
+        System.out.println("7. View Admin Action Log");
         System.out.println("0. Log Out");
     }
 
@@ -180,6 +233,8 @@ public class MainMenu {
             case 8: performSwitchAccount();    break;
             case 9: performRenameAccount();    break;
             case 10: viewAllAccountsAndBalances(); break;
+            case 11: performAddNote(); break;
+            case 12: performChangePassword(); break;
         }
     }
 
@@ -189,7 +244,26 @@ public class MainMenu {
             case 2: addInterestPayment();         break;
             case 3: reopenClosedAccount();        break;
             case 4: viewAllUsersAndAccounts();    break;
+            case 5: unlockLockedUser();        break;
+            case 6: adminViewTransactHistory();   break;
+            case 7: viewAdminLog();             break;
         }
+    }
+
+    private void viewAdminLog() {
+        if (adminLog.isEmpty()) {
+            System.out.println("No admin actions recorded.");
+            return;
+        }
+    
+        System.out.println("\nAdmin Action Log:");
+        for (String log : adminLog) {
+            System.out.println("  " + log);
+        }
+    }
+
+    private void logAdminAction(String action) {
+        adminLog.add(action);
     }
 
     private void performDeposit() {
@@ -246,11 +320,39 @@ public class MainMenu {
     }
 
     private void performCloseAccount() {
+        if (!authenticateSensitiveAction("Enter password to close account: ")) {
+            return;
+        }
+    
         String confirm = ui.promptConfirm("Account closure is permanent. Are you sure? Y/N: ");
         if (confirm.equals("Y")) {
             selectedAccount.close();
             System.out.println("Account closed.");
         }
+    }
+
+    private boolean authenticateSensitiveAction(String prompt) {
+        while (true) {
+            String passwordAttempt = ui.promptString(prompt);
+    
+            if (bankUser.verifyPassword(passwordAttempt)) {
+                return true;
+            }
+    
+            if (bankUser.isLocked()) {
+                handleLockedSession();
+                return false;
+            }
+    
+            System.out.println("Incorrect password. Attempts remaining: " + bankUser.getRemainingAttempts());
+        }
+    }
+
+    private void handleLockedSession() {
+        System.out.println("Too many incorrect attempts. You have been logged out and account has been locked.");
+        bankUser = null;
+        selectedAccount = null;
+        userSelection = 0;
     }
 
     private void createAdditionalAccount() {
@@ -282,6 +384,7 @@ public class MainMenu {
         double amount = ui.promptPositiveDouble("Enter fee amount: ");
         try {
             selectedAccount.collectFee(amount);
+            logAdminAction("Collected fee: $" + amount);
             System.out.printf("Fee of $%.2f collected.%n", amount);
         } catch (IllegalArgumentException e) {
             System.out.println("Fee failed: " + e.getMessage());
@@ -294,6 +397,7 @@ public class MainMenu {
         double amount = ui.promptPositiveDouble("Enter interest amount: ");
         try {
             getAccount(selection - 1).addInterest(amount);
+            logAdminAction("Added interest: $" + amount + " to account #" + selection);
             System.out.printf("Interest of $%.2f added to account #%d.%n", amount, selection);
         } catch (IllegalArgumentException e) {
             System.out.println("Interest failed: " + e.getMessage());
@@ -336,6 +440,7 @@ public class MainMenu {
         displayClosedAccounts(closedAccounts);
         BankAccount selected = selectClosedAccount(closedAccounts);
         selected.reopen();
+        logAdminAction("Reopened account: " + selected.getName());
     
         System.out.println("Account has been reopened.");
     }
@@ -378,6 +483,8 @@ public class MainMenu {
             return;
         }
     
+        logAdminAction("Viewed all users and accounts");
+    
         for (BankUser user : allUsers) {
             System.out.println("User: " + user.getUsername());
     
@@ -385,6 +492,110 @@ public class MainMenu {
                 System.out.println("  - " + acc.getName() + " | Balance: $" + acc.getBalance());
             }
         }
+    }
+
+
+    private void performAddNote() {
+        List<Transaction> history = selectedAccount.getTransactionHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions to add a note to.");
+            return;
+        }
+        System.out.println("Recent transactions");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.printf("  %d. %s%n", i + 1, history.get(i));
+        }
+        int selection = ui.promptInRange("Select a transaction: ", 1, history.size());
+        String note = ui.promptString("Enter note: ");
+        history.get(selection - 1).setNote(note);
+        System.out.println("Added note to transaction");
+    }
+
+    private void performChangePassword() {
+        if (!authenticateSensitiveAction("Enter password to change password: ")) {
+            return;
+        }
+    
+        ui.promptPasswordSelection(bankUser);
+        System.out.println("Password changed successfully.");
+    }
+
+    private void adminViewTransactHistory() {
+        if (allUsers.isEmpty()) {
+            System.out.println("No users available");
+            return;
+        }
+
+        for (int i=0; i<allUsers.size(); i++) {
+            System.out.println((i+1) + "." + allUsers.get(i).getUsername());
+        }
+        int chooseUser = ui.promptInRange("Select user: ", 1, allUsers.size());
+        BankUser selectedUser = allUsers.get(chooseUser-1);
+        if (selectedUser.getAccounts().isEmpty()){
+            System.out.println("This user has no accounts");
+        }
+        ArrayList<BankAccount> accounts = selectedUser.getAccounts();
+        for (int i=0; i<accounts.size(); i++){
+            System.out.printf("%d. %s | Balance: $%.2f%n", i + 1, accounts.get(i).getName(), accounts.get(i).getBalance());
+        }
+        int accSelection = ui.promptInRange("Select account: ", 1, accounts.size());
+        BankAccount account = accounts.get(accSelection - 1);
+        List<Transaction> history = account.getTransactionHistory();
+        if (history.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+    
+        System.out.println("\nTransaction History:");
+        for (Transaction t : history) {
+            System.out.println("  " + t);
+        }
+    
+    }
+
+    private void unlockLockedUser() {
+        List<BankUser> lockedUsers = getLockedUsers();
+    
+        if (lockedUsers.isEmpty()) {
+            System.out.println("No locked users found.");
+            return;
+        }
+    
+        displayLockedUsers(lockedUsers);
+        BankUser selectedUser = selectLockedUser(lockedUsers);
+        selectedUser.unlock();
+        logAdminAction("Unlocked user: " + selectedUser.getUsername());
+        System.out.println("User account has been unlocked.");
+    }
+
+    private List<BankUser> getLockedUsers() {
+        List<BankUser> lockedUsers = new ArrayList<>();
+    
+        for (BankUser user : allUsers) {
+            if (user.isLocked()) {
+                lockedUsers.add(user);
+            }
+        }
+    
+        return lockedUsers;
+    }
+
+    private void displayLockedUsers(List<BankUser> lockedUsers) {
+        System.out.println("Locked users:");
+    
+        for (int i = 0; i < lockedUsers.size(); i++) {
+            System.out.println((i + 1) + ". " + lockedUsers.get(i).getUsername());
+        }
+    }
+
+    private BankUser selectLockedUser(List<BankUser> lockedUsers) {
+        int selection = ui.promptInRange(
+            "Select user to unlock: ",
+            1,
+            lockedUsers.size()
+        );
+    
+        return lockedUsers.get(selection - 1);
     }
 
     public static void main(String[] args) {

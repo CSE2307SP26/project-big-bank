@@ -5,7 +5,7 @@ import main.MainMenu;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class MainMenuTest {
 
@@ -110,5 +110,52 @@ public class MainMenuTest {
         assertEquals("AdminAccount", user.getAccounts().get(0).getName());
     }
 
+    @Test
+    public void testAdminLogStartsEmpty() {
+        MainMenu menu = new MainMenu();
+        assertTrue(menu.getAdminLog().isEmpty());
+    }
 
+    @Test
+    public void testAdminLogRecordsAction() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Collected fee: $10");
+
+        assertEquals(1, menu.getAdminLog().size());
+        assertTrue(menu.getAdminLog().get(0).contains("Collected fee"));
+    }
+
+    @Test
+    public void testMultipleAdminActionsLogged() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Collected fee: $10");
+        menu.getAdminLog().add("Unlocked user: testUser");
+
+        assertEquals(2, menu.getAdminLog().size());
+    }
+
+    @Test
+    public void testUnlockUserActionLogged() {
+        MainMenu menu = new MainMenu();
+
+        menu.getAdminLog().add("Unlocked user: testUser");
+
+        assertTrue(menu.getAdminLog().get(0).contains("Unlocked user"));
+    }
+
+    @Test
+    public void testAdminAccessToUserAccountHistoryData() {
+        BankUser user = new BankUser();
+        user.setUsername("user1");
+        user.setPassword("pass");
+
+        BankAccount acc = new BankAccount();
+        acc.deposit(100);
+
+        user.addAccount(acc);
+
+        assertEquals(1, user.getAccounts().get(0).getTransactionHistory().size());
+    }
 }

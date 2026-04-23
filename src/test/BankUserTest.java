@@ -4,7 +4,7 @@ import main.BankUser;
 import main.BankAccount;
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class BankUserTest {
 
@@ -42,6 +42,16 @@ public class BankUserTest {
         assertThrows(IllegalArgumentException.class, () -> newUser.setPassword(""));
     }
 
+
+    @Test
+    public void setNewPassword() {
+        BankUser newUser = new BankUser();
+        newUser.setUsername("My Name");
+        newUser.setPassword("123");
+        newUser.setPassword("456");
+        assertTrue(newUser.checkPassword("456"));
+    }
+
     @Test
     public void getAccounts() {
         BankUser newUser = new BankUser();
@@ -76,4 +86,130 @@ public class BankUserTest {
         newUser.addAccount(newAccount);
         assertThrows(IllegalArgumentException.class, () -> newUser.addAccount(newAccount));
     }
+
+    @Test
+    public void testOneIncorrectPasswordDoesNotLockUser() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong");
+
+        assertFalse(user.isLocked());
+    }
+
+    @Test
+    public void testThreeIncorrectPasswordsLockUser() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+
+        assertTrue(user.isLocked());
+    }
+
+    @Test
+    public void testFailedAttemptsIncreaseAfterWrongPassword() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong");
+
+        assertEquals(1, user.getFailedAttempts());
+    }
+
+    @Test
+    public void testCorrectPasswordResetsFailedAttempts() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong");
+        user.verifyPassword("pass123");
+
+        assertEquals(0, user.getFailedAttempts());
+    }
+
+    @Test
+    public void testRemainingAttemptsAfterOneWrongPassword() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong");
+
+        assertEquals(2, user.getRemainingAttempts());
+    }
+
+    @Test
+    public void testRemainingAttemptsAfterThreeWrongPasswords() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+
+        assertEquals(0, user.getRemainingAttempts());
+    }
+
+    @Test
+    public void testLockedUserCannotVerifyCorrectPassword() {
+        BankUser user = new BankUser();
+        user.setUsername("My name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+
+        assertFalse(user.verifyPassword("pass123"));
+    }
+
+    @Test
+    public void testUnlockRemovesLock() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertFalse(user.isLocked());
+    }
+    
+    @Test
+    public void testUnlockResetsFailedAttempts() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertEquals(0, user.getFailedAttempts());
+    }
+
+    @Test
+    public void testVerifyPasswordWorksAfterUnlock() {
+        BankUser user = new BankUser();
+        user.setUsername("my name");
+        user.setPassword("pass123");
+
+        user.verifyPassword("wrong1");
+        user.verifyPassword("wrong2");
+        user.verifyPassword("wrong3");
+        user.unlock();
+
+        assertTrue(user.verifyPassword("pass123"));
+}
 }
